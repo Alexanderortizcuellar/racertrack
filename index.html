@@ -29,11 +29,8 @@
           <p class="text-muted mb-0" id="date"></p>
         </div>
         <div class="date-picker">
-          <input
-            type="date"
-            id="datePicker"
-            class="form-control form-control-sm"
-          />
+          <input type="date" id="datePicker" class="form-control
+          form-control-sm"" />
         </div>
         <button
           id="toggleAllBtn"
@@ -46,8 +43,7 @@
       <div class="card mb-5">
         <div class="card-body">
           <h4 class="mb-3">Overall Insights</h4>
-          <ul class="list-unstyled stats-list row gx-3" id="stats-list">
-          </ul>
+          <ul class="list-unstyled stats-list row gx-3" id="stats-list"></ul>
 
           <div class="row mt-4">
             <div class="col-md-6 mb-4 mb-md-0">
@@ -516,6 +512,7 @@
         toggleBtn.textContent = anyOpen ? "Expand All" : "Collapse All";
       });
       let datePicker = document.getElementById("datePicker");
+      datePicker.value = new Date().toISOString().split("T")[0];
       datePicker.addEventListener("change", () => {
         let date = datePicker.value;
         getRacers(date);
