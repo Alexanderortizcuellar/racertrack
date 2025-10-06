@@ -37,7 +37,7 @@ export function generateRacersDashboard(racers) {
   }
   createdoughnutChart(globalSolved, globalUnsolved);
   let containerDiv = document.createElement("div");
-  containerDiv.classList.add("container");
+  //containerDiv.classList.add("container");
   containerDiv.id = "containerDynamic";
 
   // Add any overall insights if needed...
