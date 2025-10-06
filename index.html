@@ -11,13 +11,11 @@
     />
     <link rel="stylesheet" href="./css/style.css" />
 
-
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <!-- Custom Styles & Chart Color Variables -->
-  
   </head>
 
   <body class="p-4" data-theme="light">
@@ -30,10 +28,12 @@
           <h1 class="dashboard-header mb-0">Racers Dashboard</h1>
           <p class="text-muted mb-0" id="date"></p>
         </div>
-        <div class="filters">
-          <div class="today">Today</div>
-          <div class="this-week">This Week</div>
-          <div class="this-month">This Month</div>
+        <div class="date-picker">
+          <input
+            type="date"
+            id="datePicker"
+            class="form-control form-control-sm"
+          />
         </div>
         <button
           id="toggleAllBtn"
@@ -46,28 +46,7 @@
       <div class="card mb-5">
         <div class="card-body">
           <h4 class="mb-3">Overall Insights</h4>
-          <ul class="list-unstyled stats-list row gx-3">
-            <li class="col-6 col-md-4">
-              <strong>Total Racers:</strong> ${racers.length}
-            </li>
-            <li class="col-6 col-md-4">
-              <strong>Total Puzzles:</strong> ${globalTotal}
-            </li>
-            <li class="col-6 col-md-4">
-              <strong>Solved:</strong> ${globalSolved}
-            </li>
-            <li class="col-6 col-md-4">
-              <strong>Unsolved:</strong> ${globalUnsolved}
-            </li>
-            <li class="col-6 col-md-4">
-              <strong>Avg Time:</strong> ${avgTime}s
-            </li>
-            <li class="col-6 col-md-4">
-              <strong>Avg Rating:</strong> ${avgRating}
-            </li>
-            <li class="col-6 col-md-4">
-              <strong>Avg Score:</strong> ${avgScore}
-            </li>
+          <ul class="list-unstyled stats-list row gx-3" id="stats-list">
           </ul>
 
           <div class="row mt-4">
@@ -94,19 +73,8 @@
     <script src="./js/script.js" type="module"></script>
 
     <script type="module">
-      import { generateRacersDashboard, filterRacers } from "./js/script.js";
+      import { generateRacersDashboard, getRacers } from "./js/script.js";
       // script.js
-      fetch('./data/racers.json')
-        .then(response => {
-          if (!response.ok) throw new Error('Network response was not ok');
-          return response.json();
-        })
-        .then(data => {
-            data = filterRacers("today", data);
-            const containerDiv = generateRacersDashboard(data);
-            document.getElementById("dashboardContainer").appendChild(containerDiv);
-        })
-        .catch(error => console.error('Error loading JSON:', error));
 
       /*const racersData = [
         {
@@ -546,6 +514,11 @@
           anyOpen ? instance.hide() : instance.show();
         });
         toggleBtn.textContent = anyOpen ? "Expand All" : "Collapse All";
+      });
+      let datePicker = document.getElementById("datePicker");
+      datePicker.addEventListener("change", () => {
+        let date = datePicker.value;
+        getRacers(date);
       });
     </script>
   </body>
