@@ -94,8 +94,21 @@
     <script src="./js/script.js" type="module"></script>
 
     <script type="module">
-      import { generateRacersDashboard } from "./js/script.js";
-      const racersData = [
+      import { generateRacersDashboard, filterRacers } from "./js/script.js";
+      // script.js
+      fetch('./data/racers.json')
+        .then(response => {
+          if (!response.ok) throw new Error('Network response was not ok');
+          return response.json();
+        })
+        .then(data => {
+            data = filterRacers("today", data);
+            const containerDiv = generateRacersDashboard(data);
+            document.getElementById("dashboardContainer").appendChild(containerDiv);
+        })
+        .catch(error => console.error('Error loading JSON:', error));
+
+      /*const racersData = [
         {
           date: "2024-10-12",
           id: 1,
@@ -517,10 +530,7 @@
           score: 10,
         },
       ];
-      console.log(racersData);
-      const containerDiv = generateRacersDashboard(racersData);
-      document.getElementById("dashboardContainer").appendChild(containerDiv);
-
+      */
       const collapseEls = document.querySelectorAll(".collapse");
       const toggleBtn = document.getElementById("toggleAllBtn");
       //const rootStyle = getComputedStyle(document.documentElement);

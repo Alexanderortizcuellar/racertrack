@@ -1,21 +1,5 @@
 import { createRacerCard } from "./racercard.js";
 
-const collapseEls = document.querySelectorAll(".collapse");
-const toggleBtn = document.getElementById("toggleAllBtn");
-//const rootStyle = getComputedStyle(document.documentElement);
-
-// Toggle all details
-toggleBtn.addEventListener("click", () => {
-  const anyOpen = Array.from(collapseEls).some((el) =>
-    el.classList.contains("show")
-  );
-  collapseEls.forEach((el) => {
-    const instance = bootstrap.Collapse.getOrCreateInstance(el);
-    anyOpen ? instance.hide() : instance.show();
-  });
-  toggleBtn.textContent = anyOpen ? "Expand All" : "Collapse All";
-});
-
 export function generateRacersDashboard(racers) {
   // Compute global aggregates (if you still need them)
   const allPuzzles = racers.flatMap((r) => r.puzzles);
@@ -45,4 +29,24 @@ export function generateRacersDashboard(racers) {
   html += `</div></div>`;
   containerDiv.innerHTML = html;
   return containerDiv;
+}
+
+export function filterRacers(condition, racers) {
+  if (condition === "today") {
+    //let today = new Date().toISOString().split("T")[0];
+    let today = new Date();
+    let yesterday = new Date(today);
+    yesterday.setDate(today.getDate() - 2);
+
+    let formattedYesterday = yesterday.toISOString().split("T")[0];
+    console.log(formattedYesterday); // ej. "2025-10-04"
+
+    racers = racers.filter((r) => r.date === formattedYesterday);
+  } else if (condition === "this-week") {
+    return [];
+  } else if (condition === "this-month") {
+    return [];
+  }
+
+  return racers;
 }
