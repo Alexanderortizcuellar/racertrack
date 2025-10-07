@@ -29,8 +29,11 @@
           <p class="text-muted mb-0" id="date"></p>
         </div>
         <div class="date-picker">
-          <input type="date" id="datePicker" class="form-control
-          form-control-sm" />
+          <input
+            type="date"
+            id="datePicker"
+            class="form-control form-control-sm"
+          />
         </div>
         <button
           id="toggleAllBtn"
@@ -512,7 +515,15 @@
         toggleBtn.textContent = anyOpen ? "Expand All" : "Collapse All";
       });
       let datePicker = document.getElementById("datePicker");
-      datePicker.value = new Date().toISOString().split("T")[0];
+      let url = new URL(window.location.href);
+      let date = url.searchParams.get("date");
+      date = date
+        ? date
+        : new Date().toLocaleDateString("en-CA", {
+            timeZone: "America/Bogota",
+          });
+      datePicker.value = date;
+      getRacers(date);
       datePicker.addEventListener("change", () => {
         let date = datePicker.value;
         getRacers(date);
