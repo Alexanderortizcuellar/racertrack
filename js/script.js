@@ -16,8 +16,7 @@ export function generateRacersDashboard(racers) {
     racers.reduce((sum, r) => sum + r.score, 0) / racers.length
   ).toFixed(2);
 
-  let statsUl = document.getElementById("stats-list");
-  console.log(statsUl);
+  let statsUl = document.getElementById("kpi-grid");
   if (statsUl) {
     statsUl.innerHTML = "";
     for (const [key, value] of Object.entries({
@@ -29,8 +28,9 @@ export function generateRacersDashboard(racers) {
       "Avg Rating": avgRating,
       "Avg Score": avgScore,
     })) {
-      let li = document.createElement("li");
-      li.classList.add("col-6", "col-md-4");
+      let li = document.createElement("div");
+      //li.classList.add("col-6", "col-md-4");
+      li.classList.add("kpi-card");
       li.innerHTML = `<strong>${key}:</strong> ${value}`;
       statsUl.appendChild(li);
     }
