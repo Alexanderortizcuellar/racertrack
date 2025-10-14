@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Alex Chess.com Games</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Bootstrap -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- Chess.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chess.js@1.0.0/dist/chess.min.js"></script>
+    <style>
+      body {
+        background-color: #f8f9fa;
+      }
+      .game-card {
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        border-radius: 10px;
+        transition: transform 0.2s ease;
+      }
+      .game-card:hover {
+        transform: scale(1.02);
+      }
+      .game-date {
+        font-size: 0.9rem;
+        color: #555;
+      }
+      .badge-time {
+        font-size: 0.8rem;
+      }
+      .result-win {
+        color: #198754;
+        font-weight: bold;
+      }
+      .result-loss {
+        color: #dc3545;
+        font-weight: bold;
+      }
+      .result-draw {
+        color: #6c757d;
+        font-weight: bold;
+      }
+      .badge-solved {
+        background-color: #10b981;
+      }
+
+      .badge-unsolved {
+        background-color: #ef4444;
+      }
+    </style>
+  </head>
+  <body class="p-4">
+    <div class="container">
+      <h1 class="text-center mb-4">Alex Chess.com Games</h1>
+
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <label for="datePicker" class="form-label fw-bold"
+            >Select Date:</label
+          >
+          <input
+            type="date"
+            id="datePicker"
+            class="form-control"
+            value="2025-10-12"
+          />
+        </div>
+        <div class="col-md-6 d-flex align-items-end justify-content-end">
+          <h5 id="gameCount" class="text-muted"></h5>
+        </div>
+      </div>
+
+      <div id="gamesContainer" class="row g-3"></div>
+    </div>
+
+    <script>
+      const username = "Alexander2magnus";
+      const gamesContainer = document.getElementById("gamesContainer");
+      const datePicker = document.getElementById("datePicker");
+      const gameCount = document.getElementById("gameCount");
+
+      let cachedGames = [];
+
+      function formatTimeControl(tc) {
+        // e.g., "300+5" -> "5 min + 5s", "1/259200" -> "Correspondence (3 days)"
+        if (!tc) return "Unknown";
+        if (tc.includes("/")) {
+          const days = parseInt(tc.split("/")[1]) / 86400;
+          return `Correspondence (${days} day${days > 1 ? "s" : ""})`;
+        }
+        const [base, increment] = tc.split("+").map(Number);
+        const mins = Math.floor(base / 60);
+        return `${mins} min${increment ? " + " + increment + "s" : ""}`;
+      }
+
+      async function fetchMonthGames(year, month) {
+        const url = `https://api.chess.com/pub/player/${username}/games/${year}/${month}`;
+        const res = await fetch(url);
+        if (!res.ok) {
+          gamesContainer.innerHTML = `<p class='text-danger'>Could not load games for ${year}-${month}.</p>`;
+          return [];
+        }
+        const data = await res.json();
+        return data.games || [];
+      }
+
+      async function updateGamesForDate(dateString) {
+        const date = new Date(dateString);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+
+        if (
+          !cachedGames.length ||
+          cachedGames[0]?.monthFetched !== `${year}-${month}`
+        ) {
+          cachedGames = await fetchMonthGames(year, month);
+          cachedGames.forEach((g) => (g.monthFetched = `${year}-${month}`));
+        }
+
+        const filtered = cachedGames.filter((game) => {
+          const localDate = new Date(game.end_time * 1000);
+          const dayStr = localDate.toLocaleDateString("en-CA", {
+            timeZone: "America/Bogota",
+          });
+          return dayStr === dateString;
+        });
+
+        displayGames(filtered, dateString);
+      }
+
+      function displayGames(games, dateString) {
+        gamesContainer.innerHTML = "";
+        gameCount.textContent = `Games on ${dateString}: ${games.length}`;
+
+        if (games.length === 0) {
+          gamesContainer.innerHTML =
+            "<p class='text-center text-muted mt-4'>No games found for this date.</p>";
+          return;
+        }
+
+        games.forEach((game) => {
+          const localDate = new Date(game.end_time * 1000).toLocaleString(
+            "es-CO",
+            { timeZone: "America/Bogota" }
+          );
+
+          const opponent =
+            game.white.username === username
+              ? game.black.username
+              : game.white.username;
+
+          const result =
+            game.white.username === username
+              ? game.white.result
+              : game.black.result;
+
+          const resultClass =
+            result === "win"
+              ? "result-win"
+              : result === "resigned" ||
+                result === "timeout" ||
+                result === "checkmated"
+              ? "result-loss"
+              : "result-draw";
+
+          const resultText =
+            result === "win"
+              ? `<svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="30" height="30" viewBox="0 0 48 48">
+<path fill="#c8e6c9" d="M44,24c0,11.045-8.955,20-20,20S4,35.045,4,24S12.955,4,24,4S44,12.955,44,24z"></path><path fill="#4caf50" d="M34.586,14.586l-13.57,13.586l-5.602-5.586l-2.828,2.828l8.434,8.414l16.395-16.414L34.586,14.586z"></path>
+</svg> Win`
+              : result === "resigned" ||
+                result === "timeout" ||
+                result === "checkmated"
+              ? `<svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="30" height="30" viewBox="0 0 48 48">
+<path fill="#f44336" d="M44,24c0,11.045-8.955,20-20,20S4,35.045,4,24S12.955,4,24,4S44,12.955,44,24z"></path><path fill="#fff" d="M29.656,15.516l2.828,2.828l-14.14,14.14l-2.828-2.828L29.656,15.516z"></path><path fill="#fff" d="M32.484,29.656l-2.828,2.828l-14.14-14.14l2.828-2.828L32.484,29.656z"></path>
+</svg> Loss`
+              : "➖ Draw";
+
+          const timeControlText = formatTimeControl(game.time_control);
+          const timeClass = game.time_class
+            ? game.time_class.toUpperCase()
+            : "Unknown";
+
+          const cleanPGN = game.pgn.replace(/\{[^}]*\}/g, ""); // remove clock annotations
+
+          const card = document.createElement("div");
+          card.className = "col-md-4";
+          card.innerHTML = `
+          <div class="card game-card h-100">
+            <div class="card-body">
+              <h5 class="card-title">${opponent}</h5>
+              <span class="badge mb-1 ${resultClass}" style="font-size: 0.8rem;"><strong>${resultText}</strong></span>
+              <p class="card-text mb-1"><span class="badge bg-secondary badge-time">${timeClass}</span> ${timeControlText}</p>
+              <p class="card-text mb-1 game-date"><strong>Played:</strong> ${localDate}</p>
+              <a href="${game.url}" target="_blank" class="btn btn-sm btn-primary mt-2">View on Chess.com</a>
+            </div>
+          </div>
+        `;
+          gamesContainer.appendChild(card);
+        });
+      }
+
+      datePicker.addEventListener("change", () =>
+        updateGamesForDate(datePicker.value)
+      );
+
+      // Initial load
+      updateGamesForDate(datePicker.value);
+    </script>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>
