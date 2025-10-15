@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Racer Calendar</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      :root {
+        --primary: #007bff;
+        --bg: #f8f9fa;
+        --text-dark: #343a40;
+        --text-light: #555;
+        --radius: 8px;
+      }
+
+      body {
+        font-family: system-ui, sans-serif;
+        background: var(--bg);
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-height: 100vh;
+      }
+
+      header {
+        text-align: center;
+        background: white;
+        width: 100%;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        padding: 10px 0;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+      }
+
+      h1 {
+        margin: 10px 0;
+        color: var(--text-dark);
+      }
+
+      .controls {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        margin: 10px 0;
+        flex-wrap: wrap;
+      }
+
+      select,
+      button {
+        padding: 6px 10px;
+        border-radius: var(--radius);
+        border: 1px solid #ccc;
+        background: white;
+        font-size: 14px;
+        cursor: pointer;
+      }
+
+      button {
+        background: var(--primary);
+        color: white;
+        border: none;
+      }
+
+      button:hover {
+        opacity: 0.9;
+      }
+
+      #calendar {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 6px;
+        width: 95%;
+        max-width: 900px;
+        margin: 20px auto;
+        transition: transform 0.3s ease;
+      }
+
+      .day-header {
+        font-weight: bold;
+        background: var(--text-dark);
+        color: white;
+        text-align: center;
+        padding: 6px;
+        border-radius: var(--radius);
+        font-size: 0.9em;
+      }
+
+      .day {
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: var(--radius);
+        padding: 10px;
+        min-height: 80px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        text-align: center;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        transition: transform 0.15s;
+        position: relative;
+      }
+
+      .day:hover {
+        transform: scale(1.05);
+      }
+
+      .date {
+        font-size: 0.9em;
+        color: var(--text-light);
+      }
+
+      .avg {
+        font-size: 1.3em;
+        font-weight: bold;
+        color: var(--primary);
+      }
+
+      /* Tooltip styling */
+      .tooltip {
+        position: fixed;
+        background: white;
+        border: 1px solid #ccc;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        border-radius: var(--radius);
+        padding: 10px 12px;
+        font-size: 13px;
+        color: var(--text-dark);
+        pointer-events: none;
+        opacity: 0;
+        transform: translateY(5px);
+        transition: opacity 0.25s ease, transform 0.25s ease;
+        z-index: 1000;
+        max-width: 240px;
+      }
+
+      .tooltip.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .tooltip strong {
+        color: var(--primary);
+      }
+      @media (max-width: 900px) {
+        #calendar {
+          transform: scale(0.95);
+        }
+      }
+
+      @media (max-width: 750px) {
+        #calendar {
+          transform: scale(0.85);
+        }
+      }
+
+      @media (max-width: 600px) {
+        #calendar {
+          transform: scale(0.75);
+        }
+        h1 {
+          font-size: 1.2em;
+        }
+        .day {
+          padding: 6px;
+        }
+      }
+
+      @media (max-width: 480px) {
+        #calendar {
+          transform: scale(0.65);
+          transform-origin: top center;
+        }
+        .controls {
+          flex-direction: column;
+          gap: 5px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h2>Racer Calendar</h2>
+      <div class="controls">
+        <button id="prevMonth">←</button>
+        <select id="monthSelect"></select>
+        <select id="yearSelect"></select>
+        <button id="nextMonth">→</button>
+      </div>
+    </header>
+
+    <div id="calendar"></div>
+
+    <div id="tooltip" class="tooltip"></div>
+
+    <script>
+      async function loadRacers() {
+        const res = await fetch("data/racers.json");
+        const racers = await res.json();
+        return racers;
+      }
+
+      function groupByDate(racers) {
+        const grouped = {};
+        racers.forEach((r) => {
+          if (!grouped[r.date]) grouped[r.date] = [];
+          grouped[r.date].push(r);
+        });
+        return grouped;
+      }
+
+      function calculateAverages(grouped) {
+        const averages = {};
+        for (const date in grouped) {
+          const racers = grouped[date];
+          const total = racers.reduce((sum, r) => sum + (r.score || 0), 0);
+          averages[date] = total / racers.length;
+        }
+        return averages;
+      }
+
+      function computeTooltipStats(racers) {
+        const totalRacers = racers.length;
+        let totalPuzzles = 0;
+        let solved = 0;
+        let unsolved = 0;
+        let totalScore = 0;
+        let totalRating = 0;
+        let fastest = Infinity;
+
+        racers.forEach((r) => {
+          totalPuzzles += r.puzzles_done || 0;
+          totalScore += r.score || 0;
+          r.puzzles?.forEach((p) => {
+            if (p.solved) solved++;
+            else unsolved++;
+            totalRating += p.rating || 0;
+            if (p.time && p.time < fastest) fastest = p.time;
+          });
+        });
+
+        const avgScore = (totalScore / totalRacers).toFixed(1);
+        const avgRating = (totalRating / (solved + unsolved || 1)).toFixed(0);
+
+        return `
+      <div><strong>Racers:</strong> ${totalRacers}</div>
+      <div><strong>Total puzzles:</strong> ${totalPuzzles}</div>
+      <div><strong>Solved:</strong> ${solved}</div>
+      <div><strong>Unsolved:</strong> ${unsolved}</div>
+      <div><strong>Avg score:</strong> ${avgScore}</div>
+      <div><strong>Avg rating:</strong> ${avgRating}</div>
+      <div><strong>Fastest time:</strong> ${
+        fastest === Infinity ? "-" : fastest + "s"
+      }</div>
+    `;
+      }
+
+      function populatePickers(year, month) {
+        const monthSelect = document.getElementById("monthSelect");
+        const yearSelect = document.getElementById("yearSelect");
+
+        const months = [
+          "January",
+          "February",
+          "March",
+          "April",
+          "May",
+          "June",
+          "July",
+          "August",
+          "September",
+          "October",
+          "November",
+          "December",
+        ];
+
+        monthSelect.innerHTML = months
+          .map(
+            (m, i) =>
+              `<option value="${i}" ${
+                i === month ? "selected" : ""
+              }>${m}</option>`
+          )
+          .join("");
+
+        const currentYear = new Date().getFullYear();
+        const years = [];
+        for (let y = currentYear - 3; y <= currentYear + 1; y++) {
+          years.push(
+            `<option value="${y}" ${y === year ? "selected" : ""}>${y}</option>`
+          );
+        }
+        yearSelect.innerHTML = years.join("");
+      }
+
+      function generateCalendar(grouped, averages, year, month) {
+        const calendar = document.getElementById("calendar");
+        const tooltip = document.getElementById("tooltip");
+        calendar.innerHTML = "";
+
+        const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+        daysOfWeek.forEach((day) => {
+          const div = document.createElement("div");
+          div.className = "day-header";
+          div.textContent = day;
+          calendar.appendChild(div);
+        });
+
+        const start = new Date(year, month, 1);
+        const end = new Date(year, month + 1, 0);
+        const firstDay = start.getDay();
+        const daysInMonth = end.getDate();
+
+        for (let i = 0; i < firstDay; i++) {
+          calendar.appendChild(document.createElement("div"));
+        }
+
+        for (let d = 1; d <= daysInMonth; d++) {
+          const dateStr = `${year}-${String(month + 1).padStart(
+            2,
+            "0"
+          )}-${String(d).padStart(2, "0")}`;
+          const div = document.createElement("div");
+          div.className = "day";
+          div.innerHTML = `
+        <div class="date">${d}</div>
+        <div class="avg">${
+          averages[dateStr] ? averages[dateStr].toFixed(1) : "-"
+        }</div>
+      `;
+
+          if (grouped[dateStr]) {
+            div.addEventListener("mousemove", (e) => {
+              tooltip.innerHTML = computeTooltipStats(grouped[dateStr]);
+              tooltip.classList.add("visible");
+
+              const mouseX = e.clientX + 15 + window.scrollX;
+              const mouseY = e.clientY + 10 + window.scrollY;
+              const tooltipRect = tooltip.getBoundingClientRect();
+
+              let left = mouseX;
+              let top = mouseY;
+
+              // Prevent overflow on right
+              if (left + tooltipRect.width > window.innerWidth) {
+                left = e.clientX - tooltipRect.width - 15 + window.scrollX;
+              }
+              // Prevent overflow on bottom
+              if (
+                top + tooltipRect.height >
+                window.innerHeight + window.scrollY
+              ) {
+                top = e.clientY - tooltipRect.height - 15 + window.scrollY;
+              }
+
+              tooltip.style.left = `${left}px`;
+              tooltip.style.top = `${top}px`;
+            });
+
+            div.addEventListener("mouseleave", () => {
+              tooltip.classList.remove("visible");
+            });
+          }
+
+          calendar.appendChild(div);
+        }
+      }
+
+      async function init() {
+        const racers = await loadRacers();
+        const grouped = groupByDate(racers);
+        const averages = calculateAverages(grouped);
+
+        let current = new Date();
+        let year = current.getFullYear();
+        let month = current.getMonth();
+
+        populatePickers(year, month);
+        generateCalendar(grouped, averages, year, month);
+
+        document
+          .getElementById("monthSelect")
+          .addEventListener("change", (e) => {
+            month = parseInt(e.target.value);
+            generateCalendar(grouped, averages, year, month);
+          });
+
+        document
+          .getElementById("yearSelect")
+          .addEventListener("change", (e) => {
+            year = parseInt(e.target.value);
+            generateCalendar(grouped, averages, year, month);
+          });
+
+        document.getElementById("prevMonth").addEventListener("click", () => {
+          if (month === 0) {
+            month = 11;
+            year--;
+          } else month--;
+          populatePickers(year, month);
+          generateCalendar(grouped, averages, year, month);
+        });
+
+        document.getElementById("nextMonth").addEventListener("click", () => {
+          if (month === 11) {
+            month = 0;
+            year++;
+          } else month++;
+          populatePickers(year, month);
+          generateCalendar(grouped, averages, year, month);
+        });
+      }
+
+      init();
+    </script>
+  </body>
+</html>
