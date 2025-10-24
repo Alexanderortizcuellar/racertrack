@@ -80,7 +80,7 @@
       const gamesContainer = document.getElementById("gamesContainer");
       const datePicker = document.getElementById("datePicker");
       const gameCount = document.getElementById("gameCount");
-
+      datePicker.value = new Date().toISOString().split("T")[0];
       let cachedGames = [];
 
       function formatTimeControl(tc) {
