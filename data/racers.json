@@ -187417,5 +187417,755 @@
     "puzzles_done": 12,
     "rank": 6,
     "score": 34
+  },
+  {
+    "date": "2025-10-29",
+    "id": 1613,
+    "players": 5,
+    "puzzles": [
+      {
+        "fen": "r1b2rk1/pp2b1p1/4p2B/3pn3/NP6/2PB2R1/P5PP/R5K1 b - - 0 19",
+        "id": 17142,
+        "lichess_id": "5LHx0",
+        "line": "e5d3 g3g7 g8h8 g7e7",
+        "racer_id": 1613,
+        "rating": 1006,
+        "solved": true,
+        "time": 7
+      },
+      {
+        "fen": "3r4/1p3Qbk/p2q2Np/P4p2/8/2P3P1/1P5P/1B4K1 b - - 0 38",
+        "id": 17143,
+        "lichess_id": "b4c3S",
+        "line": "d6g6 b1f5 g6f5 f7f5",
+        "racer_id": 1613,
+        "rating": 1037,
+        "solved": true,
+        "time": 7
+      },
+      {
+        "fen": "5R2/p3k2p/Kb3Np1/1P2rp2/8/6P1/3B3P/8 b - - 0 44",
+        "id": 17144,
+        "lichess_id": "V9nHL",
+        "line": "e7f8 f6d7 f8f7 d7e5",
+        "racer_id": 1613,
+        "rating": 1065,
+        "solved": true,
+        "time": 4
+      },
+      {
+        "fen": "6k1/4bppp/4p3/8/1qP1Q3/3B3P/r4PP1/2R3K1 b - - 1 28",
+        "id": 17145,
+        "lichess_id": "XgoiJ",
+        "line": "b4b2 e4h7 g8f8 h7h8",
+        "racer_id": 1613,
+        "rating": 1086,
+        "solved": true,
+        "time": 8
+      },
+      {
+        "fen": "r1br1k2/p4p2/2p1p1p1/2b1N1P1/8/8/PPP2PPR/1K5R b - - 1 21",
+        "id": 17146,
+        "lichess_id": "WmvYe",
+        "line": "c5d6 h2h8 f8e7 e5c6",
+        "racer_id": 1613,
+        "rating": 1132,
+        "solved": true,
+        "time": 9
+      },
+      {
+        "fen": "1rr3k1/2q2pp1/3Rp1p1/4P3/1p1P4/7P/1P1Q2PK/R7 b - - 4 31",
+        "id": 17147,
+        "lichess_id": "0n5v5",
+        "line": "c7c2 d6d8 c8d8 d2c2",
+        "racer_id": 1613,
+        "rating": 1151,
+        "solved": true,
+        "time": 10
+      },
+      {
+        "fen": "2r1k2r/1bq2ppp/p3p3/P2pP3/1b6/5B2/1P3PPP/R1BQR1K1 b k - 0 17",
+        "id": 17148,
+        "lichess_id": "hnhw9",
+        "line": "b4a5 d1a4 b7c6 a4a5 c7a5 a1a5",
+        "racer_id": 1613,
+        "rating": 1175,
+        "solved": true,
+        "time": 7
+      },
+      {
+        "fen": "4r1k1/pQ3p1p/6p1/6q1/1P3n2/1Br1N2b/P4PP1/R4RK1 b - - 0 23",
+        "id": 17149,
+        "lichess_id": "Ys2q2",
+        "line": "h3g2 b7f7 g8h8 f7e8",
+        "racer_id": 1613,
+        "rating": 1270,
+        "solved": true,
+        "time": 10
+      },
+      {
+        "fen": "1r5k/4RP1p/8/p7/8/1p5P/6PK/8 b - - 0 38",
+        "id": 17150,
+        "lichess_id": "V3aY9",
+        "line": "h8g7 e7e8 g7f7 e8b8",
+        "racer_id": 1613,
+        "rating": 1296,
+        "solved": true,
+        "time": 8
+      },
+      {
+        "fen": "r1bqk2r/p1p2p1p/1p3p2/4p3/3bP3/B7/2QP1PPP/1R2KB1R b Kkq - 1 15",
+        "id": 17151,
+        "lichess_id": "X4uRp",
+        "line": "c8b7 f1b5 c7c6 b5c6 b7c6 c2c6",
+        "racer_id": 1613,
+        "rating": 1307,
+        "solved": true,
+        "time": 8
+      },
+      {
+        "fen": "3r1b1r/pp1k2p1/5n1p/3P3q/B4Bb1/8/PPP3PP/R3QRK1 b - - 2 17",
+        "id": 17152,
+        "lichess_id": "xcNRq",
+        "line": "d7c8 e1c3 f8c5 c3c5",
+        "racer_id": 1613,
+        "rating": 1320,
+        "solved": true,
+        "time": 9
+      },
+      {
+        "fen": "8/6pk/5p1p/5Q2/8/2P3q1/PP3nP1/6K1 b - - 1 34",
+        "id": 17153,
+        "lichess_id": "G00ro",
+        "line": "g3g6 f5g6 h7g6 g1f2",
+        "racer_id": 1613,
+        "rating": 1410,
+        "solved": false,
+        "time": 2
+      }
+    ],
+    "puzzles_done": 12,
+    "rank": 2,
+    "score": 30
+  },
+  {
+    "date": "2025-10-29",
+    "id": 1614,
+    "players": 5,
+    "puzzles": [
+      {
+        "fen": "r1b1k2r/pp3ppp/2p2n2/1Bb1q3/8/2N2K2/PPPP2PP/R1BQ3R w kq - 0 11",
+        "id": 17154,
+        "lichess_id": "gsQq1",
+        "line": "h1e1 c8g4",
+        "racer_id": 1614,
+        "rating": 1015,
+        "solved": true,
+        "time": 9
+      },
+      {
+        "fen": "1k5r/4b2p/1qppBp2/4p3/1PQ1PP2/r5B1/2P3PP/2KR3R w - - 0 24",
+        "id": 17155,
+        "lichess_id": "xyqUt",
+        "line": "c1d2 b6e3",
+        "racer_id": 1614,
+        "rating": 1042,
+        "solved": false,
+        "time": 19
+      },
+      {
+        "fen": "1k1r1r2/p7/1p5p/1Pp1P3/2P3P1/Q7/5qPP/R2R2K1 w - - 2 28",
+        "id": 17156,
+        "lichess_id": "QA2y0",
+        "line": "g1h1 d8d1 a1d1 f2f1 d1f1 f8f1",
+        "racer_id": 1614,
+        "rating": 1064,
+        "solved": true,
+        "time": 7
+      },
+      {
+        "fen": "r3nnk1/1bq2rpp/p2bQ3/1p1p2N1/3P1P2/2PB4/PP4PP/R1B1R1K1 w - - 3 17",
+        "id": 17157,
+        "lichess_id": "lavOF",
+        "line": "d3h7 f8h7 g5f7 c7f7 e6f7 g8f7",
+        "racer_id": 1614,
+        "rating": 1094,
+        "solved": true,
+        "time": 6
+      },
+      {
+        "fen": "8/6k1/1p2bqp1/p1p5/2P5/1P1BQ1P1/P4PK1/8 w - - 11 41",
+        "id": 17158,
+        "lichess_id": "TcRhC",
+        "line": "e3f3 e6h3 g2h3 f6f3",
+        "racer_id": 1614,
+        "rating": 1125,
+        "solved": true,
+        "time": 4
+      },
+      {
+        "fen": "8/8/8/8/3k2P1/1P2pK1P/8/8 w - - 0 63",
+        "id": 17159,
+        "lichess_id": "wR7jG",
+        "line": "g4g5 d4d3 g5g6 e3e2 f3f2 d3d2 g6g7 e2e1q",
+        "racer_id": 1614,
+        "rating": 1151,
+        "solved": true,
+        "time": 5
+      },
+      {
+        "fen": "3r4/p1p3k1/1pp5/4r1p1/4PpR1/P2P1P2/1PP2P1K/6R1 w - - 0 29",
+        "id": 17160,
+        "lichess_id": "xmYXx",
+        "line": "g4f4 d8h8 h2g3 g5f4 g3f4 g7f6",
+        "racer_id": 1614,
+        "rating": 1182,
+        "solved": true,
+        "time": 12
+      },
+      {
+        "fen": "1r5k/pb1Q2p1/3b3p/5p2/5P2/2NPB1rq/PP3R1P/R5K1 w - - 0 26",
+        "id": 17161,
+        "lichess_id": "bPhmA",
+        "line": "h2g3 h3h1",
+        "racer_id": 1614,
+        "rating": 1273,
+        "solved": true,
+        "time": 6
+      },
+      {
+        "fen": "3r2k1/RR3pp1/5n1p/2q5/2P5/5N2/2QNrPPP/6K1 w - - 1 25",
+        "id": 17162,
+        "lichess_id": "s8cF7",
+        "line": "c2b1 c5f2 g1h1 f2g2",
+        "racer_id": 1614,
+        "rating": 1287,
+        "solved": true,
+        "time": 10
+      },
+      {
+        "fen": "8/8/3R4/p1kPpK2/5p2/PP3P2/3r4/8 w - - 1 41",
+        "id": 17163,
+        "lichess_id": "ShwXJ",
+        "line": "f5e5 d2e2 e5f5 c5d6",
+        "racer_id": 1614,
+        "rating": 1310,
+        "solved": true,
+        "time": 8
+      },
+      {
+        "fen": "1k5r/ppp2R2/8/8/PP6/2P2Bb1/3r2P1/2R2K2 w - - 10 36",
+        "id": 17164,
+        "lichess_id": "J6mAt",
+        "line": "f1g1 g3f2 g1f1 h8h1",
+        "racer_id": 1614,
+        "rating": 1327,
+        "solved": false,
+        "time": 5
+      }
+    ],
+    "puzzles_done": 11,
+    "rank": 2,
+    "score": 27
+  },
+  {
+    "date": "2025-10-29",
+    "id": 1615,
+    "players": 7,
+    "puzzles": [
+      {
+        "fen": "7k/p1q1pQb1/4Pp1p/3R1Pp1/8/1N5P/Pr4P1/7K w - - 1 34",
+        "id": 17165,
+        "lichess_id": "cNPWL",
+        "line": "d5c5 b2b1 c5c1 b1c1 b3c1 c7c1",
+        "racer_id": 1615,
+        "rating": 1018,
+        "solved": true,
+        "time": 11
+      },
+      {
+        "fen": "2r3k1/p2q1rpp/3b4/3Q1p2/4p1n1/2P4P/PP1P1PP1/RNB2RK1 w - - 2 21",
+        "id": 17166,
+        "lichess_id": "UUvJD",
+        "line": "h3g4 d6h2 g1h2 d7d5",
+        "racer_id": 1615,
+        "rating": 1036,
+        "solved": true,
+        "time": 6
+      },
+      {
+        "fen": "8/8/1pp1k3/4Bp1p/PK3P2/P3n2P/8/8 w - - 0 40",
+        "id": 17167,
+        "lichess_id": "LUZBT",
+        "line": "e5c7 e3d5 b4b3 d5c7",
+        "racer_id": 1615,
+        "rating": 1066,
+        "solved": true,
+        "time": 5
+      },
+      {
+        "fen": "rnbq1rk1/pp3pbp/4p1p1/8/3pPP2/2PB1N2/P5PP/R1BQ1RK1 w - - 0 11",
+        "id": 17168,
+        "lichess_id": "jOvNL",
+        "line": "c3d4 g7d4 f3d4 d8d4",
+        "racer_id": 1615,
+        "rating": 1083,
+        "solved": true,
+        "time": 10
+      },
+      {
+        "fen": "6k1/bpp3pp/p2p4/3Pp2q/2PnN2r/5P2/PP4BP/2RQ1R1K w - - 2 24",
+        "id": 17169,
+        "lichess_id": "ls4iC",
+        "line": "h2h3 h4h3 g2h3 h5h3 h1g1 d4f3",
+        "racer_id": 1615,
+        "rating": 1117,
+        "solved": true,
+        "time": 9
+      },
+      {
+        "fen": "1r1q1rk1/1p1nbppp/2p5/p2Pp3/P1B2P2/2NPQ2P/1PP3P1/R4RK1 w - - 1 15",
+        "id": 17170,
+        "lichess_id": "frSno",
+        "line": "d5c6 e7c5 e3c5 d7c5",
+        "racer_id": 1615,
+        "rating": 1160,
+        "solved": true,
+        "time": 7
+      },
+      {
+        "fen": "2n3r1/pp1k1p1p/2b5/2P1QP2/8/2P1K3/PP5P/8 w - - 13 35",
+        "id": 17171,
+        "lichess_id": "iiCJt",
+        "line": "b2b4 g8e8 e3f4 e8e5",
+        "racer_id": 1615,
+        "rating": 1182,
+        "solved": true,
+        "time": 6
+      },
+      {
+        "fen": "5r2/6pk/6pp/4r3/5q2/1P1Q2n1/P2N2PP/2RR3K w - - 1 28",
+        "id": 17172,
+        "lichess_id": "PH7j0",
+        "line": "h2g3 e5h5 h1g1 f4f2",
+        "racer_id": 1615,
+        "rating": 1278,
+        "solved": true,
+        "time": 10
+      },
+      {
+        "fen": "5rb1/p5k1/7R/1BP3P1/1P6/2r5/P4K2/R7 w - - 1 37",
+        "id": 17173,
+        "lichess_id": "t6RIz",
+        "line": "f2g2 g8d5 g2g1 c3g3",
+        "racer_id": 1615,
+        "rating": 1293,
+        "solved": true,
+        "time": 18
+      },
+      {
+        "fen": "8/8/4R1pp/2k5/P4pKP/2Bn1P2/1P4P1/6r1 w - - 3 44",
+        "id": 17174,
+        "lichess_id": "g8X3h",
+        "line": "g4h3 d3f2 h3h2 g1h1",
+        "racer_id": 1615,
+        "rating": 1311,
+        "solved": false,
+        "time": 7
+      }
+    ],
+    "puzzles_done": 10,
+    "rank": 3,
+    "score": 27
+  },
+  {
+    "date": "2025-10-29",
+    "id": 1616,
+    "players": 5,
+    "puzzles": [
+      {
+        "fen": "8/R1K1Qppk/4b2p/8/1Pq5/P4P2/6P1/8 w - - 13 54",
+        "id": 17175,
+        "lichess_id": "ytNR1",
+        "line": "c7d8 c4c8",
+        "racer_id": 1616,
+        "rating": 1003,
+        "solved": true,
+        "time": 3
+      },
+      {
+        "fen": "8/2k4p/2P1n1p1/1rBn4/5p1P/3N1K2/2R2P2/8 w - - 2 53",
+        "id": 17176,
+        "lichess_id": "54Ptk",
+        "line": "c5a3 e6d4 f3e4 d4c2",
+        "racer_id": 1616,
+        "rating": 1032,
+        "solved": true,
+        "time": 4
+      },
+      {
+        "fen": "6r1/pp5R/5k2/5p1K/7P/P1P2P2/2P2P2/8 w - - 1 36",
+        "id": 17177,
+        "lichess_id": "aq9yw",
+        "line": "h7b7 g8h8 b7h7 h8h7",
+        "racer_id": 1616,
+        "rating": 1059,
+        "solved": true,
+        "time": 5
+      },
+      {
+        "fen": "7k/1p4p1/7q/3Pp2P/8/pP2Qr2/P1r3R1/5K1R w - - 0 38",
+        "id": 17178,
+        "lichess_id": "83nY7",
+        "line": "e3f3 h6c1 f3d1 c1d1",
+        "racer_id": 1616,
+        "rating": 1082,
+        "solved": true,
+        "time": 8
+      },
+      {
+        "fen": "2r4r/p2k2p1/1qp1p1Q1/3pP1p1/PP6/6P1/6PP/1R2R1K1 w - - 3 25",
+        "id": 17179,
+        "lichess_id": "8oQr0",
+        "line": "g1h1 h8h2 h1h2 c8h8 g6h5 h8h5",
+        "racer_id": 1616,
+        "rating": 1126,
+        "solved": true,
+        "time": 11
+      },
+      {
+        "fen": "r2r2k1/5p2/6pP/2np4/p5R1/P1P1P3/1P3P2/2K2N1R w - - 3 29",
+        "id": 17180,
+        "lichess_id": "y30Tf",
+        "line": "f1g3 c5d3 c1c2 d3f2 g4f4 f2h1",
+        "racer_id": 1616,
+        "rating": 1154,
+        "solved": false,
+        "time": 4
+      },
+      {
+        "fen": "8/8/8/1p2Q3/p2P3K/P1P2k2/8/6q1 w - - 2 49",
+        "id": 17181,
+        "lichess_id": "rQlbM",
+        "line": "e5b5 g1g4",
+        "racer_id": 1616,
+        "rating": 1180,
+        "solved": true,
+        "time": 6
+      },
+      {
+        "fen": "1r1qr1k1/5p1p/3pp1pB/2p3N1/2PnR3/6P1/1bP2P1P/1R1Q2K1 w - - 0 20",
+        "id": 17182,
+        "lichess_id": "t5dBM",
+        "line": "b1b2 b8b2 e4d4 c5d4",
+        "racer_id": 1616,
+        "rating": 1270,
+        "solved": true,
+        "time": 17
+      },
+      {
+        "fen": "6k1/1p5p/p1p5/3pP2q/1P1Pn3/4QK2/P3R1P1/8 w - - 6 32",
+        "id": 17183,
+        "lichess_id": "KYOxn",
+        "line": "f3f4 h5g5 f4f3 g5g3",
+        "racer_id": 1616,
+        "rating": 1292,
+        "solved": true,
+        "time": 12
+      },
+      {
+        "fen": "6r1/1p3r1k/6qp/2b1pp2/P1N5/3P3P/4QPP1/3R1RK1 w - - 4 30",
+        "id": 17184,
+        "lichess_id": "YrHiG",
+        "line": "g2g3 g6g3 g1h1 g3h3",
+        "racer_id": 1616,
+        "rating": 1318,
+        "solved": true,
+        "time": 5
+      },
+      {
+        "fen": "8/4B3/p1K5/2P4p/3k3P/2n5/8/8 w - - 3 45",
+        "id": 17185,
+        "lichess_id": "U3vFg",
+        "line": "c6b6 c3d5 b6a6 d5e7",
+        "racer_id": 1616,
+        "rating": 1328,
+        "solved": true,
+        "time": 4
+      },
+      {
+        "fen": "r5k1/3NbpBb/4p2p/7q/8/pQ2PP2/4K1PP/R7 w - - 0 29",
+        "id": 17186,
+        "lichess_id": "x1FEw",
+        "line": "a1a3 a8a3 b3b8 g8g7",
+        "racer_id": 1616,
+        "rating": 1415,
+        "solved": false,
+        "time": 11
+      }
+    ],
+    "puzzles_done": 12,
+    "rank": 4,
+    "score": 21
+  },
+  {
+    "date": "2025-10-29",
+    "id": 1617,
+    "players": 9,
+    "puzzles": [
+      {
+        "fen": "1q1rr3/pb3pkp/1p4p1/2bp4/6N1/P2B1P2/1PPQ2PP/R4R1K b - - 3 23",
+        "id": 17187,
+        "lichess_id": "oP0En",
+        "line": "h7h5 d2h6 g7g8 g4f6",
+        "racer_id": 1617,
+        "rating": 1003,
+        "solved": true,
+        "time": 9
+      },
+      {
+        "fen": "2r5/4R3/6p1/8/p3R1kP/2p5/Pr4P1/7K b - - 5 35",
+        "id": 17188,
+        "lichess_id": "AEyGH",
+        "line": "g4h5 e7h7",
+        "racer_id": 1617,
+        "rating": 1039,
+        "solved": true,
+        "time": 3
+      },
+      {
+        "fen": "1k4r1/pp3p2/4p3/1q1pPp2/1P1P3p/2Q2RrP/2R3PK/8 b - - 3 31",
+        "id": 17189,
+        "lichess_id": "bbpAc",
+        "line": "g3f3 c3c7 b8a8 c7c8 g8c8 c2c8",
+        "racer_id": 1617,
+        "rating": 1071,
+        "solved": true,
+        "time": 5
+      },
+      {
+        "fen": "4r1k1/2R1N1p1/1p4P1/2n5/5P2/p3PK2/1b6/8 b - - 1 42",
+        "id": 17190,
+        "lichess_id": "76HAF",
+        "line": "e8e7 c7c8 e7e8 c8e8",
+        "racer_id": 1617,
+        "rating": 1098,
+        "solved": true,
+        "time": 11
+      },
+      {
+        "fen": "8/5p2/p1r1p3/3n2k1/P1N3P1/1P1R2P1/6K1/8 b - - 0 37",
+        "id": 17191,
+        "lichess_id": "dpjjv",
+        "line": "g5g4 c4e5 g4f5 e5c6",
+        "racer_id": 1617,
+        "rating": 1125,
+        "solved": true,
+        "time": 4
+      },
+      {
+        "fen": "rn3r2/p7/2p1p1kp/1p1pBbq1/3P2P1/2P1PQ2/2P4P/R4RK1 b - - 0 23",
+        "id": 17192,
+        "lichess_id": "BZlSi",
+        "line": "g5g4 f3g4 f5g4 f1f8",
+        "racer_id": 1617,
+        "rating": 1142,
+        "solved": true,
+        "time": 6
+      },
+      {
+        "fen": "r7/p3R3/1p1N4/k1p4p/2P5/PP1P4/6r1/2K5 b - - 1 30",
+        "id": 17193,
+        "lichess_id": "XyXvN",
+        "line": "a8f8 e7a7",
+        "racer_id": 1617,
+        "rating": 1184,
+        "solved": false,
+        "time": 3
+      },
+      {
+        "fen": "8/5p1r/5p1k/5K2/8/4P3/6R1/8 b - - 3 65",
+        "id": 17194,
+        "lichess_id": "CVpM7",
+        "line": "h7g7 g2h2",
+        "racer_id": 1617,
+        "rating": 1277,
+        "solved": true,
+        "time": 5
+      },
+      {
+        "fen": "2r3k1/1p2ppbp/3pbnp1/1N6/1qPBP3/rP3P2/3QB1PP/1R1R2K1 b - - 4 18",
+        "id": 17195,
+        "lichess_id": "wjFy7",
+        "line": "a3b3 d2b4 b3b4 b1b4",
+        "racer_id": 1617,
+        "rating": 1297,
+        "solved": true,
+        "time": 4
+      },
+      {
+        "fen": "6rk/p2KB1pp/1b4q1/3Q4/2n5/6N1/6PP/5R2 b - - 7 36",
+        "id": 17196,
+        "lichess_id": "fG4ok",
+        "line": "c4e3 d5g8 h8g8 f1f8",
+        "racer_id": 1617,
+        "rating": 1307,
+        "solved": true,
+        "time": 6
+      },
+      {
+        "fen": "2rr3k/5pp1/7N/2qb4/7Q/pp1R3P/5PP1/3R2K1 b - - 0 35",
+        "id": 17197,
+        "lichess_id": "H4dl9",
+        "line": "g7h6 h4h6 h8g8 d3g3",
+        "racer_id": 1617,
+        "rating": 1329,
+        "solved": false,
+        "time": 5
+      },
+      {
+        "fen": "6k1/1p2qppp/5n2/p2P1B2/8/2Q4P/5PP1/6K1 b - - 0 31",
+        "id": 17198,
+        "lichess_id": "Ox9dm",
+        "line": "f6d5 c3c8 e7f8 f5h7 g8h7 c8f8",
+        "racer_id": 1617,
+        "rating": 1413,
+        "solved": true,
+        "time": 7
+      },
+      {
+        "fen": "5Rk1/pp6/2pqr3/2Q5/2n1P1rP/2P3P1/P1P1K3/5R2 b - - 2 28",
+        "id": 17199,
+        "lichess_id": "ewDTR",
+        "line": "g8g7 f1f7 g7h6 f8h8 h6g6 c5f5",
+        "racer_id": 1617,
+        "rating": 1431,
+        "solved": true,
+        "time": 14
+      },
+      {
+        "fen": "r3r1k1/p1p3pp/3q4/3p1p2/Q2PN3/4B3/P3nPPP/R4R1K b - - 0 19",
+        "id": 17200,
+        "lichess_id": "MfxII",
+        "line": "d5e4 a4c4 g8h8 c4e2",
+        "racer_id": 1617,
+        "rating": 1441,
+        "solved": false,
+        "time": 8
+      }
+    ],
+    "puzzles_done": 14,
+    "rank": 3,
+    "score": 28
+  },
+  {
+    "date": "2025-10-29",
+    "id": 1618,
+    "players": 5,
+    "puzzles": [
+      {
+        "fen": "7k/p7/3b3p/6p1/5PP1/r1NR3K/4r2P/7R w - - 2 37",
+        "id": 17201,
+        "lichess_id": "vVvU8",
+        "line": "d3d6 a3c3 d6d3 c3d3",
+        "racer_id": 1618,
+        "rating": 1007,
+        "solved": true,
+        "time": 3
+      },
+      {
+        "fen": "k2r4/p1R2ppp/4p3/1Q6/8/7P/PP3PP1/3q2K1 w - - 5 27",
+        "id": 17202,
+        "lichess_id": "TYaiu",
+        "line": "g1h2 d1d6 g2g3 d6c7",
+        "racer_id": 1618,
+        "rating": 1038,
+        "solved": true,
+        "time": 5
+      },
+      {
+        "fen": "3r2k1/6p1/1p5p/1N3p2/2p2Q2/2P1P3/bPK3PP/8 w - - 0 27",
+        "id": 17203,
+        "lichess_id": "A5Lsl",
+        "line": "f4f5 a2b3 c2b1 d8d1",
+        "racer_id": 1618,
+        "rating": 1065,
+        "solved": true,
+        "time": 6
+      },
+      {
+        "fen": "1r4k1/b4pp1/P6p/5q2/4N3/3B1PPb/1rP2Q1P/R3R2K w - - 7 34",
+        "id": 17204,
+        "lichess_id": "1Jf89",
+        "line": "f2a7 f5f3 h1g1 f3g2",
+        "racer_id": 1618,
+        "rating": 1099,
+        "solved": true,
+        "time": 6
+      },
+      {
+        "fen": "8/5R2/P4p2/3p4/3b1kP1/4p2K/8/8 w - - 0 45",
+        "id": 17205,
+        "lichess_id": "9NIpc",
+        "line": "f7f6 d4f6 a6a7 e3e2 a7a8q e2e1q",
+        "racer_id": 1618,
+        "rating": 1122,
+        "solved": true,
+        "time": 13
+      },
+      {
+        "fen": "r1b1k2r/pppp1ppp/8/8/4P1nq/1BN2P2/PPPP3P/R1BQK2R w kq - 1 11",
+        "id": 17206,
+        "lichess_id": "YCoda",
+        "line": "e1e2 h4f2 e2d3 g4e5",
+        "racer_id": 1618,
+        "rating": 1154,
+        "solved": true,
+        "time": 16
+      },
+      {
+        "fen": "2br2k1/bpN1n1pp/p1np2q1/P4pN1/5P2/8/1PP3PP/R1BQ1R1K w - - 1 24",
+        "id": 17207,
+        "lichess_id": "sxsHR",
+        "line": "g5e6 c8e6 c7e6 g6e6",
+        "racer_id": 1618,
+        "rating": 1178,
+        "solved": true,
+        "time": 11
+      },
+      {
+        "fen": "6k1/pp3p1p/4r3/3R3Q/8/4b1PK/PP3r1P/8 w - - 8 28",
+        "id": 17208,
+        "lichess_id": "nUrvZ",
+        "line": "d5d8 g8g7 h5g4 e6g6 g4c8 g6h6",
+        "racer_id": 1618,
+        "rating": 1272,
+        "solved": true,
+        "time": 19
+      },
+      {
+        "fen": "2kr4/pp6/2n1PR2/3p4/3P4/3QB1b1/PP2B3/4RK1q w - - 9 32",
+        "id": 17209,
+        "lichess_id": "GZddR",
+        "line": "e3g1 h1h3",
+        "racer_id": 1618,
+        "rating": 1293,
+        "solved": true,
+        "time": 7
+      },
+      {
+        "fen": "5r1k/2pP3p/p5p1/1p1Q4/6p1/1P6/Pq3PPP/4R1K1 w - - 0 30",
+        "id": 17210,
+        "lichess_id": "wKyE4",
+        "line": "d7d8q b2f2 g1h1 f2e1",
+        "racer_id": 1618,
+        "rating": 1310,
+        "solved": false,
+        "time": 4
+      }
+    ],
+    "puzzles_done": 10,
+    "rank": 3,
+    "score": 22
   }
 ]
