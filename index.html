@@ -1,118 +1,1224 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="en" class="dark">
   <head>
     <meta charset="UTF-8" />
-    <title>Racers Dashboard Alexander</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <!-- Bootstrap CSS -->
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="./css/style.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lichess Racer Analytics Dashboard</title>
 
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: {
+                300: "#93c5fd",
+                400: "#60a5fa",
+                500: "#3b82f6",
+                600: "#2563eb",
+                700: "#1d4ed8",
+              },
+            },
+          },
+        },
+      };
+    </script>
 
-    <!-- Custom Styles & Chart Color Variables -->
+    <style>
+      /* =====================================================================
+         THEME TOKENS — edit these to restyle both modes in one place
+         ===================================================================== */
+      :root {
+        /* Light mode */
+        --bg-page: #f1f5f9; /* slate-100  — page canvas             */
+        --bg-card: #ffffff; /* white      — card / panel surface    */
+        --bg-subtle: #f8fafc; /* slate-50   — inset / icon bg         */
+        --bg-input: #f1f5f9; /* slate-100  — form inputs             */
+        --bg-nav: #ffffff;
+        --bg-chip: #e2e8f0; /* slate-200  — pill / quick-filter btn */
+
+        --border: #cbd5e1; /* slate-300  — card borders            */
+        --border-subtle: #e2e8f0; /* slate-200  — dividers                */
+        --border-input: #cbd5e1;
+
+        --text-heading: #0f172a; /* slate-900                            */
+        --text-body: #334155; /* slate-700                            */
+        --text-muted: #64748b; /* slate-500                            */
+        --text-faint: #94a3b8; /* slate-400  — labels, placeholders    */
+
+        --shadow-card:
+          0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+      }
+
+      .dark {
+        /* Dark mode — much more contrast than slate-950/slate-900 pairing   */
+        --bg-page: #0d1117; /* near-black page canvas               */
+        --bg-card: #161b22; /* GitHub-dark-ish card surface         */
+        --bg-subtle: #1c2333; /* slightly lighter inset               */
+        --bg-input: #1c2333;
+        --bg-nav: #13181f;
+        --bg-chip: #21262d;
+
+        --border: #30363d; /* visible but not glaring              */
+        --border-subtle: #21262d;
+        --border-input: #30363d;
+
+        --text-heading: #f0f6fc; /* near-white                           */
+        --text-body: #c9d1d9; /* github-dark body text                */
+        --text-muted: #8b949e;
+        --text-faint: #6e7681;
+
+        --shadow-card:
+          0 1px 3px rgba(0, 0, 0, 0.5), 0 1px 2px rgba(0, 0, 0, 0.4);
+      }
+    </style>
+
+    <script
+      src="https://unpkg.com/react@18/umd/react.production.min.js"
+      crossorigin
+    ></script>
+    <script
+      src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"
+      crossorigin
+    ></script>
+
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+
+    <script src="https://unpkg.com/dayjs@1.11.10/dayjs.min.js"></script>
+
+    <style>
+      body {
+        background-color: var(--bg-page);
+        color: var(--text-body);
+        font-family: ui-sans-serif, system-ui, sans-serif;
+        margin: 0;
+        padding: 0;
+        transition:
+          background-color 0.3s,
+          color 0.3s;
+      }
+      .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: var(--border);
+        border-radius: 9999px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: var(--text-faint);
+      }
+
+      .fade-in {
+        animation: fadeIn 0.4s ease-out;
+      }
+      .slide-down {
+        animation: slideDown 0.3s ease-out;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      @keyframes slideDown {
+        from {
+          opacity: 0;
+          transform: scaleY(0.95);
+          transform-origin: top;
+        }
+        to {
+          opacity: 1;
+          transform: scaleY(1);
+          transform-origin: top;
+        }
+      }
+    </style>
   </head>
+  <body>
+    <div id="root"></div>
 
-  <body class="p-4" data-theme="light">
-    <div id="dashboardContainer" class="container">
-      <!-- HEADER -->
-      <header
-        class="d-flex flex-wrap justify-content-between align-items-center mb-5"
-      >
-        <div>
-          <h4 class="dashboard-header mb-0"><svg style="width: 20px; height: 20px;margin-right: 5px;" aria-h idden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--!Font Awesome Free v7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M135.2 117.4l-26.1 74.6 293.8 0-26.1-74.6C372.3 104.6 360.2 96 346.6 96L165.4 96c-13.6 0-25.7 8.6-30.2 21.4zM39.6 196.8L74.8 96.3C88.3 57.8 124.6 32 165.4 32l181.2 0c40.8 0 77.1 25.8 90.6 64.3l35.2 100.5c23.2 9.6 39.6 32.5 39.6 59.2l0 192c0 17.7-14.3 32-32 32l-32 0c-17.7 0-32-14.3-32-32l0-32-320 0 0 32c0 17.7-14.3 32-32 32l-32 0c-17.7 0-32-14.3-32-32L0 256c0-26.7 16.4-49.6 39.6-59.2zM128 304a32 32 0 1 0 -64 0 32 32 0 1 0 64 0zm288 32a32 32 0 1 0 0-64 32 32 0 1 0 0 64z"/></svg>Racers Alex</h4>
-          <p class="text-muted mb-0" id="date"></p>
-        </div>
-        <div class="date-picker">
-          <input
-            type="date"
-            id="datePicker"
-            class="form-control form-control-sm"
+    <script type="text/babel">
+      const { useState, useEffect, useMemo, useRef, useCallback } = React;
+
+      const DATA_URL =
+        "https://alexanderortizcuellar.github.io/racertrack/data/racers.json";
+
+      // --- COMPONENTS ---
+
+      // ECharts Wrapper
+      const ReactEChart = ({ option, style, className, theme }) => {
+        const chartRef = useRef(null);
+        const chartInstance = useRef(null);
+
+        useEffect(() => {
+          if (chartInstance.current) {
+            chartInstance.current.dispose();
+          }
+          chartInstance.current = echarts.init(
+            chartRef.current,
+            theme === "dark" ? "dark" : null,
+          );
+
+          const enhancedOption = {
+            ...option,
+            backgroundColor: "transparent",
+            textStyle: { fontFamily: "ui-sans-serif, system-ui, sans-serif" },
+          };
+
+          chartInstance.current.setOption(enhancedOption);
+
+          const handleResize = () => chartInstance.current?.resize();
+          window.addEventListener("resize", handleResize);
+
+          return () => {
+            window.removeEventListener("resize", handleResize);
+            if (chartInstance.current) chartInstance.current.dispose();
+          };
+        }, [option, theme]);
+
+        return (
+          <div
+            ref={chartRef}
+            style={{
+              width: "100%",
+              height: "100%",
+              minHeight: "300px",
+              ...style,
+            }}
+            className={className}
           />
+        );
+      };
+
+      // KPI Card
+      const KPICard = ({ title, value, icon, colorClass }) => (
+        <div className="bg-[var(--bg-card)] p-5 rounded-2xl shadow-sm dark:shadow-lg border border-[var(--border)] flex items-center justify-between transition-transform duration-300 hover:-translate-y-1 hover:shadow-md">
+          <div>
+            <p className="text-sm text-[var(--text-muted)] font-medium mb-1">
+              {title}
+            </p>
+            <h3 className="text-2xl font-bold text-[var(--text-heading)]">
+              {value}
+            </h3>
+          </div>
+          <div
+            className={`text-3xl ${colorClass} opacity-80 flex items-center justify-center w-12 h-12 rounded-xl bg-[var(--bg-subtle)]`}
+          >
+            <i className={`fa-solid ${icon}`}></i>
+          </div>
         </div>
-        <button
-          id="toggleAllBtn"
-          class="btn btn-sm btn-outline-primary d-none"
-          type="button"
-        >
-          Expand All
-        </button>
-      </header>
-      <div class="card mb-3">
-        <div class="card-body">
-          <h5 class="mb-3">Overall Insights</h5>
-          <div class="kpi-grid" id="kpi-grid"></div>
-        </div>
-      </div>
-      <div class="card mb-3">
-        <div class="card-body">
-          <!-- <ul class="list-unstyled stats-list row gx-3" id="stats-list"></ul> -->
-          <div class="row mt-4">
-            <div class="col-md-6 mb-4 mb-md-0">
-              <canvas id="solvedChart"></canvas>
+      );
+
+      // Racer Card
+      const RacerCard = ({ racer }) => {
+        const [expanded, setExpanded] = useState(false);
+
+        return (
+          <div className="bg-[var(--bg-card)] rounded-2xl shadow-sm dark:shadow-lg border border-[var(--border)] overflow-hidden fade-in transition-all duration-300 hover:shadow-md dark:hover:shadow-xl dark:hover:border-slate-700 group">
+            <div
+              className="p-6 cursor-pointer"
+              onClick={() => setExpanded(!expanded)}
+            >
+              {/* Top Section */}
+              <div className="flex justify-between items-start mb-6">
+                <div>
+                  <h4 className="text-xl font-bold text-primary-600 dark:text-primary-400 flex items-center">
+                    <i className="fa-solid fa-user-astronaut mr-2 opacity-70"></i>{" "}
+                    Racer #{racer.id}
+                  </h4>
+                  <p className="text-sm text-[var(--text-muted)] mt-1">
+                    <i className="fa-regular fa-calendar mr-1"></i> {racer.date}
+                  </p>
+                </div>
+                <span className="bg-[var(--bg-input)] border border-[var(--border)] text-[var(--text-body)] text-sm px-3 py-1.5 rounded-lg font-bold shadow-sm">
+                  <i className="fa-solid fa-trophy mr-1 text-yellow-500"></i>{" "}
+                  {racer.score} pts
+                </span>
+              </div>
+
+              {/* Middle Section - Redesigned to be less crowded */}
+              <div className="grid grid-cols-2 gap-4 mb-5 border-y border-[var(--border-subtle)] py-4">
+                <div className="text-center sm:text-left">
+                  <p className="text-[11px] text-[var(--text-faint)] mb-1 uppercase tracking-wider font-semibold">
+                    Accuracy
+                  </p>
+                  <p className="font-bold text-[var(--text-heading)] text-lg flex items-center justify-center sm:justify-start">
+                    <i className="fa-solid fa-bullseye text-emerald-500 mr-1.5 text-sm"></i>
+                    {racer.accuracy.toFixed(1)}%
+                  </p>
+                </div>
+                <div className="text-center sm:text-left border-l border-[var(--border-subtle)] pl-4">
+                  <p className="text-[11px] text-[var(--text-faint)] mb-1 uppercase tracking-wider font-semibold">
+                    Avg Time
+                  </p>
+                  <p className="font-bold text-[var(--text-heading)] text-lg flex items-center justify-center sm:justify-start">
+                    <i className="fa-solid fa-stopwatch text-blue-500 mr-1.5 text-sm"></i>
+                    {racer.avgTime.toFixed(1)}s
+                  </p>
+                </div>
+              </div>
+
+              {/* Bottom Section */}
+              <div className="flex justify-between items-center text-sm font-medium">
+                <span className="text-[var(--text-muted)] bg-[var(--bg-subtle)] px-2.5 py-1 rounded-md">
+                  <i className="fa-solid fa-chart-line mr-1 text-rose-400"></i>{" "}
+                  {Math.round(racer.avgRating)} Rating
+                </span>
+                <span className="text-[var(--text-muted)] bg-[var(--bg-subtle)] px-2.5 py-1 rounded-md">
+                  <i className="fa-solid fa-puzzle-piece mr-1 text-purple-400"></i>{" "}
+                  {racer.total} Puzzles
+                </span>
+              </div>
+
+              <div className="mt-5 text-center text-[var(--text-faint)] text-xs font-semibold uppercase tracking-wider transition-colors group-hover:text-primary-500">
+                {expanded ? (
+                  <>
+                    <i className="fa-solid fa-chevron-up mr-1"></i> Hide Details
+                  </>
+                ) : (
+                  <>
+                    <i className="fa-solid fa-chevron-down mr-1"></i> View
+                    Puzzles
+                  </>
+                )}
+              </div>
             </div>
-            <div class="col-md-6"><canvas id="avgTimeChart"></canvas></div>
-          </div>
-        </div>
-      </div>
-      <div class="card mb-3">
-        <div class="card-body">
-          <h5 class="mb-3">Additional Insights</h5>
-          <div class="row">
-            <div class="col-md-6 mb-4"><canvas id="scatterChart"></canvas></div>
-            <div class="col-md-6"><canvas id="top5Chart"></canvas></div>
-          </div>
-        </div>
-      </div>
-      <!-- RACERS GRID -->
-      <!-- <div class="racer-grid"></div> -->
-    </div>
-    <script src="./js/racercard.js" type="module"></script>
-    <script src="./js/script.js" type="module"></script>
 
-    <script type="module">
-      import { generateRacersDashboard, getRacers } from "./js/script.js";
-      const collapseEls = document.querySelectorAll(".collapse");
-      const toggleBtn = document.getElementById("toggleAllBtn");
-      //const rootStyle = getComputedStyle(document.documentElement);
+            {/* Expanded Table */}
+            {expanded && (
+              <div className="border-t border-[var(--border)] p-0 max-h-72 overflow-y-auto custom-scrollbar slide-down bg-[var(--bg-card)]">
+                <table className="w-full text-left text-sm whitespace-nowrap">
+                  <thead className="bg-[var(--bg-input)] text-[var(--text-body)] sticky top-0 shadow-sm z-10 backdrop-blur-sm">
+                    <tr>
+                      <th className="px-5 py-3 font-semibold text-xs uppercase tracking-wider">
+                        Lichess ID
+                      </th>
+                      <th className="px-5 py-3 font-semibold text-xs uppercase tracking-wider">
+                        Rating
+                      </th>
+                      <th className="px-5 py-3 font-semibold text-xs uppercase tracking-wider">
+                        Time
+                      </th>
+                      <th className="px-5 py-3 font-semibold text-xs uppercase tracking-wider text-center">
+                        Status
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[var(--border-subtle)]">
+                    {racer.puzzles.map((p, idx) => (
+                      <tr
+                        key={idx}
+                        className="hover:bg-[var(--bg-card)] transition-colors"
+                      >
+                        <td className="px-5 py-3">
+                          <a
+                            href={`https://lichess.org/training/${p.lichess_id}`}
+                            target="_blank"
+                            className="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium flex items-center"
+                          >
+                            {p.lichess_id}{" "}
+                            <i className="fa-solid fa-arrow-up-right-from-square text-[10px] ml-1.5 opacity-50"></i>
+                          </a>
+                        </td>
+                        <td className="px-5 py-3 text-[var(--text-muted)]">
+                          {p.rating}
+                        </td>
+                        <td className="px-5 py-3 text-[var(--text-muted)]">
+                          {p.time}s
+                        </td>
+                        <td className="px-5 py-3 text-center">
+                          {p.solved ? (
+                            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400">
+                              <i className="fa-solid fa-check text-xs"></i>
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-red-100 dark:bg-red-500/20 text-red-600 dark:text-red-400">
+                              <i className="fa-solid fa-xmark text-xs"></i>
+                            </span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        );
+      };
 
-      // Toggle all details
-      toggleBtn.addEventListener("click", () => {
-        const anyOpen = Array.from(collapseEls).some((el) =>
-          el.classList.contains("show")
+      // --- MAIN APP ---
+      const App = () => {
+        // State
+        const [rawData, setRawData] = useState([]);
+        const [loading, setLoading] = useState(true);
+        const [error, setError] = useState(null);
+        const [viewMode, setViewMode] = useState("dashboard");
+        const [visibleRacers, setVisibleRacers] = useState(20);
+
+        // -----------------------------------------------------------------
+        // Theme — single source of truth.
+        // Call toggleTheme() to switch; call setTheme("dark"|"light") to
+        // force a specific mode.  The THEMES object is the only place you
+        // need to edit colours for the ECharts axis labels / grid lines.
+        // -----------------------------------------------------------------
+        const THEMES = {
+          dark: {
+            textColor: "#c9d1d9",
+            axisLabelColor: "#8b949e",
+            gridLineColor: "#21262d",
+          },
+          light: {
+            textColor: "#0f172a",
+            axisLabelColor: "#64748b",
+            gridLineColor: "#e2e8f0",
+          },
+        };
+
+        const [theme, setTheme] = useState(() => {
+          const saved = localStorage.getItem("theme");
+          if (saved === "dark" || saved === "light") return saved;
+          return window.matchMedia("(prefers-color-scheme: dark)").matches
+            ? "dark"
+            : "light";
+        });
+        console.log(theme);
+
+        /** Toggle between dark and light, or pass "dark"|"light" explicitly. */
+        const toggleTheme = useCallback((forcedValue) => {
+          setTheme((prev) => {
+            const next =
+              forcedValue !== undefined
+                ? forcedValue
+                : prev === "dark"
+                  ? "light"
+                  : "dark";
+            return next;
+          });
+        }, []);
+
+        // Filters State
+        const [dateRange, setDateRange] = useState({ start: "", end: "" });
+        const [searchId, setSearchId] = useState("");
+
+        // Apply Theme — syncs <html> class + localStorage whenever theme changes
+        useEffect(() => {
+          const root = document.documentElement;
+          root.classList.toggle("dark", theme === "dark");
+          localStorage.setItem("theme", theme);
+        }, [theme]);
+
+        // Fetch Data
+        useEffect(() => {
+          const fetchData = async () => {
+            try {
+              const response = await fetch(DATA_URL);
+              if (!response.ok) throw new Error("Failed to fetch racer data.");
+              const data = await response.json();
+              setRawData(data);
+            } catch (err) {
+              setError(err.message);
+            } finally {
+              setLoading(false);
+            }
+          };
+          fetchData();
+        }, []);
+
+        // Quick Filters Configuration
+        const quickFilters = useMemo(
+          () => [
+            { label: "All Time", getDates: () => ({ start: "", end: "" }) },
+            {
+              label: "Today",
+              getDates: () => ({
+                start: dayjs().format("YYYY-MM-DD"),
+                end: dayjs().format("YYYY-MM-DD"),
+              }),
+            },
+            {
+              label: "Last 7 Days",
+              getDates: () => ({
+                start: dayjs().subtract(7, "day").format("YYYY-MM-DD"),
+                end: dayjs().format("YYYY-MM-DD"),
+              }),
+            },
+            {
+              label: "Last 30 Days",
+              getDates: () => ({
+                start: dayjs().subtract(30, "day").format("YYYY-MM-DD"),
+                end: dayjs().format("YYYY-MM-DD"),
+              }),
+            },
+            {
+              label: "This Month",
+              getDates: () => ({
+                start: dayjs().startOf("month").format("YYYY-MM-DD"),
+                end: dayjs().endOf("month").format("YYYY-MM-DD"),
+              }),
+            },
+            {
+              label: "This Year",
+              getDates: () => ({
+                start: dayjs().startOf("year").format("YYYY-MM-DD"),
+                end: dayjs().endOf("year").format("YYYY-MM-DD"),
+              }),
+            },
+          ],
+          [],
         );
 
-        collapseEls.forEach((el) => {
-          const instance = bootstrap.Collapse.getOrCreateInstance(el);
-          anyOpen ? instance.hide() : instance.show();
-        });
-        toggleBtn.textContent = anyOpen ? "Expand All" : "Collapse All";
-      });
-      let datePicker = document.getElementById("datePicker");
-      let url = new URL(window.location.href);
-      let date = url.searchParams.get("date");
-      date = date
-        ? date
-        : new Date().toLocaleDateString("en-CA", {
-            timeZone: "America/Bogota",
+        const applyQuickFilter = useCallback((filterFn) => {
+          setDateRange(filterFn());
+        }, []);
+
+        // Core Data Processing (Memoized)
+        const processedData = useMemo(() => {
+          if (!rawData.length) return null;
+
+          let racersMap = new Map();
+          let timelineMap = {};
+          let allPuzzles = [];
+          let stats = {
+            totalPuzzles: 0,
+            totalSolved: 0,
+            totalTime: 0,
+            totalRating: 0,
+          };
+
+          rawData.forEach((rawRacer) => {
+            const date = rawRacer.date;
+
+            // Filter by Date
+            if (dateRange.start && date < dateRange.start) return;
+            if (dateRange.end && date > dateRange.end) return;
+
+            // Timeline Aggregation
+            if (!timelineMap[date])
+              timelineMap[date] = { date, score: 0, count: 0 };
+            timelineMap[date].score += rawRacer.score || 0;
+            timelineMap[date].count++;
+
+            // Racer Aggregation
+            const rawRacerId = rawRacer.id;
+            if (!racersMap.has(rawRacer.id)) {
+              racersMap.set(rawRacerId, {
+                id: rawRacerId,
+                score: 0,
+                totalRank: 0,
+                puzzles: [],
+                totalTime: 0,
+                totalRating: 0,
+                solvedCount: 0,
+                date: date,
+              });
+            }
+
+            let racer = racersMap.get(rawRacerId);
+
+            racer.score += rawRacer.score || 0;
+            if (rawRacer.rank) {
+              racer.totalRank += rawRacer.rank;
+            }
+
+            // Puzzle Aggregation
+            if (rawRacer.puzzles && Array.isArray(rawRacer.puzzles)) {
+              rawRacer.puzzles.forEach((p) => {
+                racer.puzzles.push({ ...p });
+                allPuzzles.push(p);
+                if (p.solved) {
+                  racer.solvedCount++;
+                  stats.totalSolved++;
+                }
+                racer.totalTime += p.time;
+                racer.totalRating += p.rating;
+                stats.totalTime += p.time;
+                stats.totalRating += p.rating;
+                stats.totalPuzzles++;
+              });
+            }
           });
-      datePicker.value = date;
-      getRacers(date);
-      datePicker.addEventListener("change", () => {
-        let date = datePicker.value;
-        getRacers(date);
-      });
+
+          // Compute final derived properties for racers
+          let racersList = Array.from(racersMap.values()).map((r) => ({
+            ...r,
+            total: r.puzzles.length,
+            accuracy: r.puzzles.length
+              ? (r.solvedCount / r.puzzles.length) * 100
+              : 0,
+            avgTime: r.puzzles.length ? r.totalTime / r.puzzles.length : 0,
+            avgRating: r.puzzles.length ? r.totalRating / r.puzzles.length : 0,
+          }));
+
+          // Apply Search Filter
+          if (searchId) {
+            racersList = racersList.filter((r) =>
+              r.id.toString().includes(searchId),
+            );
+          }
+
+          // Sort by total score descending
+          racersList.sort((a, b) => b.score - a.score);
+
+          // Format timeline
+          const timeline = Object.values(timelineMap)
+            .sort((a, b) => a.date.localeCompare(b.date))
+            .map((s) => ({
+              date: s.date,
+              avgScore: s.count ? s.score / s.count : 0,
+            }));
+
+          return { racers: racersList, allPuzzles, timeline, stats };
+        }, [rawData, dateRange, searchId]);
+
+        // Chart Configurations (Memoized)
+        const chartOptions = useMemo(() => {
+          if (!processedData || !processedData.allPuzzles.length) return null;
+
+          const { racers, allPuzzles, timeline } = processedData;
+          const currentTheme = THEMES[theme] || THEMES.dark;
+          const { textColor, gridLineColor } = currentTheme;
+
+          // 1. Rating Distribution
+          let ratingBins = {};
+          allPuzzles.forEach((p) => {
+            let bin = Math.floor(p.rating / 100) * 100;
+            ratingBins[bin] = (ratingBins[bin] || 0) + 1;
+          });
+          const ratingX = Object.keys(ratingBins)
+            .map(Number)
+            .sort((a, b) => a - b);
+          const ratingY = ratingX.map((k) => ratingBins[k]);
+
+          // 2. Mistake Rate by Rating Bucket
+          let mistakeBins = {};
+          allPuzzles.forEach((p) => {
+            let bin = Math.floor(p.rating / 100) * 100;
+            if (!mistakeBins[bin]) mistakeBins[bin] = { total: 0, missed: 0 };
+            mistakeBins[bin].total++;
+            if (!p.solved) mistakeBins[bin].missed++;
+          });
+          const mistakeX = Object.keys(mistakeBins)
+            .map(Number)
+            .sort((a, b) => a - b)
+            .filter((k) => mistakeBins[k].total >= 5);
+          const mistakeY = mistakeX.map((k) =>
+            ((mistakeBins[k].missed / mistakeBins[k].total) * 100).toFixed(1),
+          );
+          const mistakeTotals = mistakeX.map((k) => mistakeBins[k].total);
+          const mistakeMissed = mistakeX.map((k) => mistakeBins[k].missed);
+
+          // 3. Scatter Performance
+          const scatterData = racers
+            .filter((r) => r.total > 0)
+            .map((r) => [r.avgTime, r.accuracy]);
+
+          const { axisLabelColor } = THEMES[theme];
+          const baseAxis = {
+            axisLabel: { color: axisLabelColor },
+            splitLine: { lineStyle: { color: gridLineColor } },
+          };
+
+          return {
+            ratingDist: {
+              title: {
+                text: "Puzzle Volume by Rating",
+                textStyle: {
+                  color: textColor,
+                  fontSize: 15,
+                  fontWeight: "600",
+                },
+                left: "center",
+              },
+              tooltip: { trigger: "axis", axisPointer: { type: "shadow" } },
+              grid: {
+                left: "10%",
+                right: "5%",
+                bottom: "10%",
+                containLabel: true,
+              },
+              xAxis: {
+                type: "category",
+                data: ratingX,
+                ...baseAxis,
+                splitLine: { show: false },
+              },
+              yAxis: { type: "value", ...baseAxis },
+              series: [
+                {
+                  data: ratingY,
+                  type: "bar",
+                  itemStyle: { color: "#8b5cf6", borderRadius: [4, 4, 0, 0] },
+                },
+              ],
+            },
+            mistakeRate: {
+              title: {
+                text: "Mistake Rate by Rating Bucket",
+                textStyle: {
+                  color: textColor,
+                  fontSize: 15,
+                  fontWeight: "600",
+                },
+                left: "center",
+              },
+              tooltip: {
+                trigger: "axis",
+                formatter: function (params) {
+                  let idx = params[0].dataIndex;
+                  return `<div class="font-sans text-sm p-1">
+                                    <strong class="block mb-1">Rating: ${mistakeX[idx]}s</strong>
+                                    <span style="color:#ef4444" class="font-semibold">Unsolved Rate: ${params[0].value}%</span><br/>
+                                    <span class="text-xs text-gray-400">Missed: ${mistakeMissed[idx]} / ${mistakeTotals[idx]}</span>
+                                </div>`;
+                },
+              },
+              grid: {
+                left: "10%",
+                right: "5%",
+                bottom: "10%",
+                containLabel: true,
+              },
+              xAxis: {
+                type: "category",
+                data: mistakeX,
+                ...baseAxis,
+                splitLine: { show: false },
+              },
+              yAxis: { type: "value", name: "% Unsolved", ...baseAxis },
+              series: [
+                {
+                  data: mistakeY,
+                  type: "line",
+                  smooth: true,
+                  symbolSize: 8,
+                  itemStyle: { color: "#ef4444" },
+                  areaStyle: {
+                    color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                      { offset: 0, color: "rgba(239, 68, 68, 0.4)" },
+                      { offset: 1, color: "rgba(239, 68, 68, 0)" },
+                    ]),
+                  },
+                },
+              ],
+            },
+            scatter: {
+              title: {
+                text: "Racer Performance Matrix",
+                textStyle: {
+                  color: textColor,
+                  fontSize: 15,
+                  fontWeight: "600",
+                },
+                left: "center",
+              },
+              tooltip: {
+                formatter: (params) =>
+                  `<div class="font-sans text-sm">Accuracy: ${params.value[1].toFixed(1)}%<br/>Avg Time: ${params.value[0].toFixed(1)}s</div>`,
+              },
+              grid: {
+                left: "10%",
+                right: "10%",
+                bottom: "10%",
+                containLabel: true,
+              },
+              xAxis: { type: "value", name: "Avg Time (s)", ...baseAxis },
+              yAxis: { type: "value", name: "Accuracy (%)", ...baseAxis },
+              series: [
+                {
+                  symbolSize: 10,
+                  data: scatterData,
+                  type: "scatter",
+                  itemStyle: { color: "#10b981", opacity: 0.7 },
+                },
+              ],
+            },
+            timeline: {
+              title: {
+                text: "Average Score Trend",
+                textStyle: {
+                  color: textColor,
+                  fontSize: 15,
+                  fontWeight: "600",
+                },
+                left: "center",
+              },
+              tooltip: { trigger: "axis" },
+              grid: {
+                left: "5%",
+                right: "5%",
+                bottom: "10%",
+                containLabel: true,
+              },
+              xAxis: {
+                type: "category",
+                data: timeline.map((t) => t.date),
+                ...baseAxis,
+                splitLine: { show: false },
+              },
+              yAxis: { type: "value", ...baseAxis },
+              series: [
+                {
+                  data: timeline.map((t) => t.avgScore.toFixed(2)),
+                  type: "line",
+                  smooth: true,
+                  itemStyle: { color: "#3b82f6" },
+                  areaStyle: {
+                    color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                      { offset: 0, color: "rgba(59, 130, 246, 0.5)" },
+                      { offset: 1, color: "rgba(59, 130, 246, 0)" },
+                    ]),
+                  },
+                },
+              ],
+            },
+          };
+        }, [processedData, theme]);
+
+        // Memoize visible racers to prevent re-rendering list
+        const visibleRacersList = useMemo(() => {
+          return processedData
+            ? processedData.racers.slice(0, visibleRacers)
+            : [];
+        }, [processedData, visibleRacers]);
+
+        if (loading) {
+          return (
+            <div className="flex flex-col items-center justify-center min-h-screen">
+              <i className="fa-solid fa-circle-notch fa-spin text-5xl text-primary-500 mb-4"></i>
+              <p className="text-[var(--text-muted)] font-medium tracking-wide">
+                Loading Racer Analytics...
+              </p>
+            </div>
+          );
+        }
+
+        if (error) {
+          return (
+            <div className="flex items-center justify-center min-h-screen">
+              <div className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-6 rounded-2xl border border-red-200 dark:border-red-800 flex items-center shadow-lg">
+                <i className="fa-solid fa-triangle-exclamation text-3xl mr-4"></i>
+                <div>
+                  <h3 className="font-bold text-lg">Error loading data</h3>
+                  <p>{error}</p>
+                </div>
+              </div>
+            </div>
+          );
+        }
+
+        const { stats, racers } = processedData;
+        const avgOverallTime = stats.totalPuzzles
+          ? stats.totalTime / stats.totalPuzzles
+          : 0;
+        const avgOverallRating = stats.totalPuzzles
+          ? stats.totalRating / stats.totalPuzzles
+          : 0;
+        const avgScoreOverall = racers.length
+          ? racers.reduce((acc, curr) => acc + curr.score, 0) / racers.length
+          : 0;
+
+        return (
+          <div className="min-h-screen pb-12">
+            {/* Top Navigation Bar */}
+            <header className="bg-[var(--bg-card)] shadow-sm border-b border-[var(--border)] sticky top-0 z-50 transition-colors">
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-primary-500 text-white rounded-xl flex items-center justify-center shadow-md">
+                    <i className="fa-solid fa-chess-knight text-xl"></i>
+                  </div>
+                  <div>
+                    <h1 className="text-xl font-bold text-[var(--text-heading)] leading-tight">
+                      Lichess Racer
+                    </h1>
+                    <p className="text-[10px] uppercase tracking-wider font-semibold text-[var(--text-muted)]">
+                      Analytics Dashboard
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-3">
+                  <div className="flex bg-[var(--bg-chip)] rounded-lg p-1 border border-[var(--border)]">
+                    <button
+                      className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${viewMode === "dashboard" ? "bg-[var(--bg-card)] text-primary-600 dark:text-primary-300 shadow-sm" : "text-[var(--text-muted)] hover:text-[var(--text-heading)]"}`}
+                      onClick={() => setViewMode("dashboard")}
+                    >
+                      <i className="fa-solid fa-chart-pie mr-1.5"></i> Dashboard
+                    </button>
+                    <button
+                      className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${viewMode === "racers" ? "bg-[var(--bg-card)] text-primary-600 dark:text-primary-300 shadow-sm" : "text-[var(--text-muted)] hover:text-[var(--text-heading)]"}`}
+                      onClick={() => setViewMode("racers")}
+                    >
+                      <i className="fa-solid fa-users mr-1.5"></i> Racers
+                    </button>
+                  </div>
+
+                  <button
+                    onClick={() => toggleTheme()}
+                    title={
+                      theme === "dark"
+                        ? "Switch to light mode"
+                        : "Switch to dark mode"
+                    }
+                    className="w-10 h-10 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:bg-[var(--bg-subtle)] transition-colors border border-[var(--border-subtle)]"
+                  >
+                    <i
+                      className={`fa-solid ${theme === "dark" ? "fa-sun" : "fa-moon"} text-lg`}
+                    ></i>
+                  </button>
+                </div>
+              </div>
+            </header>
+
+            {/* Filter Section */}
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 mb-8 fade-in">
+              <div className="bg-[var(--bg-card)] p-5 sm:p-6 rounded-2xl shadow-sm border border-[var(--border)] transition-colors">
+                <div className="flex items-center mb-5">
+                  <i className="fa-solid fa-filter text-slate-400 mr-2"></i>
+                  <h2 className="text-sm font-bold text-[var(--text-body)] uppercase tracking-wide">
+                    Data Filters
+                  </h2>
+                </div>
+
+                <div className="flex flex-col lg:flex-row gap-6">
+                  {/* Quick Filters */}
+                  <div className="flex-1">
+                    <label className="block text-[11px] font-bold text-[var(--text-faint)] mb-2 uppercase tracking-wider">
+                      Quick Ranges
+                    </label>
+                    <div className="flex flex-wrap gap-2">
+                      {quickFilters.map((f) => (
+                        <button
+                          key={f.label}
+                          onClick={() => applyQuickFilter(f.getDates)}
+                          className="px-3 py-1.5 text-xs font-medium bg-[var(--bg-subtle)] hover:bg-[var(--bg-chip)]/50 dark:hover:bg-slate-700 text-[var(--text-body)] rounded-lg transition-colors border border-[var(--border)]"
+                        >
+                          {f.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Custom Dates & Search */}
+                  <div className="flex flex-wrap gap-4 items-end border-t lg:border-t-0 lg:border-l border-[var(--border)] pt-5 lg:pt-0 lg:pl-6">
+                    <div>
+                      <label className="block text-[11px] font-bold text-[var(--text-faint)] mb-2 uppercase tracking-wider">
+                        Start Date
+                      </label>
+                      <input
+                        type="date"
+                        value={dateRange.start}
+                        onChange={(e) =>
+                          setDateRange({ ...dateRange, start: e.target.value })
+                        }
+                        className="bg-[var(--bg-input)] border border-[var(--border)] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-[var(--text-heading)] transition-colors w-full sm:w-auto"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-bold text-[var(--text-faint)] mb-2 uppercase tracking-wider">
+                        End Date
+                      </label>
+                      <input
+                        type="date"
+                        value={dateRange.end}
+                        onChange={(e) =>
+                          setDateRange({ ...dateRange, end: e.target.value })
+                        }
+                        className="bg-[var(--bg-input)] border border-[var(--border)] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-[var(--text-heading)] transition-colors w-full sm:w-auto"
+                      />
+                    </div>
+                    {viewMode === "racers" && (
+                      <div className="w-full sm:w-auto mt-2 sm:mt-0">
+                        <label className="block text-[11px] font-bold text-[var(--text-faint)] mb-2 uppercase tracking-wider">
+                          Search ID
+                        </label>
+                        <div className="relative">
+                          <i className="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 text-xs"></i>
+                          <input
+                            type="text"
+                            placeholder="e.g. 1234"
+                            value={searchId}
+                            onChange={(e) => setSearchId(e.target.value)}
+                            className="bg-[var(--bg-input)] border border-[var(--border)] rounded-lg pl-8 pr-3 py-2 text-sm w-full sm:w-48 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-[var(--text-heading)] transition-colors"
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Main Content Area */}
+            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              {viewMode === "dashboard" ? (
+                <div className="fade-in space-y-8">
+                  {/* Section Header */}
+                  <div className="flex items-center">
+                    <h2 className="text-xl sm:text-2xl font-bold text-[var(--text-heading)]">
+                      <i className="fa-solid fa-chart-bar text-primary-500 mr-2"></i>{" "}
+                      Performance Overview
+                    </h2>
+                    <div className="h-px bg-[var(--border)] flex-grow ml-4"></div>
+                  </div>
+
+                  {/* KPI Grid */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
+                    <KPICard
+                      title="Total Racers"
+                      value={racers.length}
+                      icon="fa-users"
+                      colorClass="text-primary-500"
+                    />
+                    <KPICard
+                      title="Total Puzzles"
+                      value={stats.totalPuzzles.toLocaleString()}
+                      icon="fa-puzzle-piece"
+                      colorClass="text-purple-500"
+                    />
+                    <KPICard
+                      title="Avg Accuracy"
+                      value={`${stats.totalPuzzles ? ((stats.totalSolved / stats.totalPuzzles) * 100).toFixed(1) : 0}%`}
+                      icon="fa-bullseye"
+                      colorClass="text-emerald-500"
+                    />
+                    <KPICard
+                      title="Avg Score / Racer"
+                      value={avgScoreOverall.toFixed(1)}
+                      icon="fa-trophy"
+                      colorClass="text-yellow-500"
+                    />
+
+                    <KPICard
+                      title="Avg Time / Puzzle"
+                      value={`${avgOverallTime.toFixed(1)}s`}
+                      icon="fa-stopwatch"
+                      colorClass="text-blue-500"
+                    />
+                    <KPICard
+                      title="Avg Rating"
+                      value={Math.round(avgOverallRating)}
+                      icon="fa-chart-line"
+                      colorClass="text-rose-500"
+                    />
+                    <KPICard
+                      title="Total Solved"
+                      value={stats.totalSolved.toLocaleString()}
+                      icon="fa-check-circle"
+                      colorClass="text-emerald-600"
+                    />
+                    <KPICard
+                      title="Total Unsolved"
+                      value={(
+                        stats.totalPuzzles - stats.totalSolved
+                      ).toLocaleString()}
+                      icon="fa-times-circle"
+                      colorClass="text-red-500"
+                    />
+                  </div>
+
+                  {/* Charts Section */}
+                  <div className="flex items-center pt-4">
+                    <h2 className="text-xl sm:text-2xl font-bold text-[var(--text-heading)]">
+                      <i className="fa-solid fa-chart-area text-purple-500 mr-2"></i>{" "}
+                      Visual Insights
+                    </h2>
+                    <div className="h-px bg-[var(--border)] flex-grow ml-4"></div>
+                  </div>
+
+                  {chartOptions && (
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                      <div className="bg-[var(--bg-card)] p-4 sm:p-6 rounded-2xl border border-[var(--border)] shadow-sm transition-colors">
+                        <ReactEChart
+                          option={chartOptions.timeline}
+                          style={{ height: "320px" }}
+                          theme={theme}
+                        />
+                      </div>
+                      <div className="bg-[var(--bg-card)] p-4 sm:p-6 rounded-2xl border border-[var(--border)] shadow-sm transition-colors">
+                        <ReactEChart
+                          option={chartOptions.mistakeRate}
+                          style={{ height: "320px" }}
+                          theme={theme}
+                        />
+                      </div>
+                      <div className="bg-[var(--bg-card)] p-4 sm:p-6 rounded-2xl border border-[var(--border)] shadow-sm transition-colors">
+                        <ReactEChart
+                          option={chartOptions.ratingDist}
+                          style={{ height: "320px" }}
+                          theme={theme}
+                        />
+                      </div>
+                      <div className="bg-[var(--bg-card)] p-4 sm:p-6 rounded-2xl border border-[var(--border)] shadow-sm transition-colors">
+                        <ReactEChart
+                          option={chartOptions.scatter}
+                          style={{ height: "320px" }}
+                          theme={theme}
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Top 10 Leaderboard Section */}
+                  <div className="flex items-center pt-6">
+                    <h2 className="text-xl sm:text-2xl font-bold text-[var(--text-heading)]">
+                      <i className="fa-solid fa-crown text-yellow-500 mr-2"></i>{" "}
+                      Leaderboard
+                    </h2>
+                    <div className="h-px bg-[var(--border)] flex-grow ml-4"></div>
+                  </div>
+
+                  <div className="bg-[var(--bg-card)] rounded-2xl shadow-sm border border-[var(--border)] overflow-hidden transition-colors">
+                    <div className="p-5 sm:p-6 border-b border-[var(--border)]/80">
+                      <h3 className="text-lg font-bold text-[var(--text-heading)]">
+                        Top 10 Racers By Score
+                      </h3>
+                      <p className="text-sm text-slate-500 mt-1">
+                        Highest cumulative scores within the selected date
+                        range.
+                      </p>
+                    </div>
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left text-sm whitespace-nowrap">
+                        <thead className="bg-[var(--bg-subtle)] text-[var(--text-muted)] border-b border-[var(--border)]">
+                          <tr>
+                            <th className="px-6 py-4 font-semibold text-xs uppercase tracking-wider">
+                              Rank
+                            </th>
+                            <th className="px-6 py-4 font-semibold text-xs uppercase tracking-wider">
+                              Racer ID
+                            </th>
+                            <th className="px-6 py-4 font-semibold text-xs uppercase tracking-wider">
+                              Score
+                            </th>
+                            <th className="px-6 py-4 font-semibold text-xs uppercase tracking-wider">
+                              Accuracy
+                            </th>
+                            <th className="px-6 py-4 font-semibold text-xs uppercase tracking-wider">
+                              Avg Time
+                            </th>
+                            <th className="px-6 py-4 font-semibold text-xs uppercase tracking-wider">
+                              Total Puzzles
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-[var(--border-subtle)]">
+                          {racers.slice(0, 10).map((r, idx) => (
+                            <tr
+                              key={r.id}
+                              className="hover:bg-[var(--bg-subtle)] transition-colors"
+                            >
+                              <td className="px-6 py-4">
+                                <span
+                                  className={`inline-flex items-center justify-center w-8 h-8 rounded-full text-xs font-bold shadow-sm ${idx === 0 ? "bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400 border border-green-200 dark:border-green-600/30" : idx === 1 ? "bg-slate-200 text-slate-700 dark:bg-slate-400/20 dark:text-slate-300 border border-slate-300 dark:border-slate-500/30" : idx === 2 ? "bg-amber-100 text-amber-800 dark:bg-amber-700/20 dark:text-amber-500 border border-amber-200 dark:border-amber-700/30" : "bg-[var(--bg-chip)] text-[var(--text-muted)]"}`}
+                                >
+                                  {idx + 1}
+                                </span>
+                              </td>
+                              <td className="px-6 py-4 font-bold text-primary-600 dark:text-primary-400">
+                                #{r.id}
+                              </td>
+                              <td className="px-6 py-4 font-bold text-[var(--text-heading)] text-lg">
+                                {r.score}
+                              </td>
+                              <td className="px-6 py-4 text-[var(--text-body)] font-medium">
+                                <i className="fa-solid fa-bullseye text-emerald-500/70 mr-1.5"></i>
+                                {r.accuracy.toFixed(1)}%
+                              </td>
+                              <td className="px-6 py-4 text-[var(--text-body)] font-medium">
+                                <i className="fa-solid fa-stopwatch text-blue-500/70 mr-1.5"></i>
+                                {r.avgTime.toFixed(1)}s
+                              </td>
+                              <td className="px-6 py-4 text-[var(--text-body)] font-medium">
+                                {r.total}
+                              </td>
+                            </tr>
+                          ))}
+                          {racers.length === 0 && (
+                            <tr>
+                              <td
+                                colSpan="6"
+                                className="px-6 py-8 text-center text-[var(--text-muted)]"
+                              >
+                                No data available for the selected filters.
+                              </td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="fade-in space-y-6">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="flex items-center">
+                      <h2 className="text-xl sm:text-2xl font-bold text-[var(--text-heading)]">
+                        <i className="fa-solid fa-users text-primary-500 mr-2"></i>{" "}
+                        Racer Profiles
+                      </h2>
+                    </div>
+                    <p className="text-sm text-[var(--text-muted)] font-medium bg-[var(--bg-card)] px-4 py-2 rounded-lg border border-[var(--border)] shadow-sm inline-block">
+                      Showing {visibleRacersList.length} of {racers.length}
+                    </p>
+                  </div>
+                  <div className="h-px bg-[var(--border)] w-full mb-6"></div>
+
+                  {visibleRacersList.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                      {visibleRacersList.map((racer) => (
+                        <RacerCard key={racer.id} racer={racer} />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-20 bg-[var(--bg-card)] rounded-2xl border border-[var(--border)] shadow-sm">
+                      <i className="fa-solid fa-folder-open text-6xl text-[var(--border)] mb-4"></i>
+                      <h3 className="text-xl font-bold text-[var(--text-body)]">
+                        No racers found
+                      </h3>
+                      <p className="text-slate-500 mt-2">
+                        Try adjusting your date range or search ID.
+                      </p>
+                    </div>
+                  )}
+
+                  {visibleRacers < racers.length && (
+                    <div className="mt-10 text-center pb-8">
+                      <button
+                        onClick={() => setVisibleRacers((prev) => prev + 20)}
+                        className="bg-white hover:bg-slate-50 dark:bg-[var(--bg-card)] dark:hover:bg-[var(--bg-subtle)] text-[var(--text-body)] px-8 py-3 rounded-xl font-bold transition-all border border-[var(--border)] shadow-sm hover:shadow group"
+                      >
+                        Load More Racers{" "}
+                        <i className="fa-solid fa-arrow-down ml-2 text-primary-500 group-hover:translate-y-1 transition-transform"></i>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </main>
+          </div>
+        );
+      };
+
+      const root = ReactDOM.createRoot(document.getElementById("root"));
+      root.render(<App />);
     </script>
   </body>
 </html>
