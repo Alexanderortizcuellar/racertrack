@@ -839,31 +839,37 @@
           <div className="min-h-screen pb-12">
             {/* Top Navigation Bar */}
             <header className="bg-[var(--bg-card)] shadow-sm border-b border-[var(--border)] sticky top-0 z-50 transition-colors">
-              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-                <div className="flex items-center gap-3">
+              {/* 1. Swapped fixed h-16 for min-h-[4rem] and added flex-wrap with vertical gap */}
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 min-h-[4rem] flex flex-wrap items-center justify-between gap-y-4 gap-x-4">
+                {/* Left Side: Logo & Title */}
+                <div className="flex items-center gap-3 shrink-0">
                   <div className="w-10 h-10 bg-primary-500 text-white rounded-xl flex items-center justify-center shadow-md">
                     <i className="fa-solid fa-chess-knight text-xl"></i>
                   </div>
                   <div>
-                    <h1 className="text-xl font-bold text-[var(--text-heading)] leading-tight">
+                    <h1 className="text-lg sm:text-xl font-bold text-[var(--text-heading)] leading-tight">
                       Lichess Racer
                     </h1>
-                    <p className="text-[10px] uppercase tracking-wider font-semibold text-[var(--text-muted)]">
+                    {/* 2. Hid the subtitle on very small screens to save space */}
+                    <p className="hidden sm:block text-[10px] uppercase tracking-wider font-semibold text-[var(--text-muted)]">
                       Analytics Dashboard
                     </p>
                   </div>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-3">
-                  <div className="flex bg-[var(--bg-chip)] rounded-lg p-1 border border-[var(--border)]">
+                {/* Right Side: Navigation & Theme */}
+                {/* 3. Forces this block to full width on mobile, auto width on desktop */}
+                <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
+                  {/* 4. Let the button container stretch on mobile */}
+                  <div className="flex flex-1 sm:flex-none bg-[var(--bg-chip)] rounded-lg p-1 border border-[var(--border)]">
                     <button
-                      className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${viewMode === "dashboard" ? "bg-[var(--bg-card)] text-primary-600 dark:text-primary-300 shadow-sm" : "text-[var(--text-muted)] hover:text-[var(--text-heading)]"}`}
+                      className={`flex-1 sm:flex-none px-2 sm:px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${viewMode === "dashboard" ? "bg-[var(--bg-card)] text-primary-600 dark:text-primary-300 shadow-sm" : "text-[var(--text-muted)] hover:text-[var(--text-heading)]"}`}
                       onClick={() => setViewMode("dashboard")}
                     >
                       <i className="fa-solid fa-chart-pie mr-1.5"></i> Dashboard
                     </button>
                     <button
-                      className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${viewMode === "racers" ? "bg-[var(--bg-card)] text-primary-600 dark:text-primary-300 shadow-sm" : "text-[var(--text-muted)] hover:text-[var(--text-heading)]"}`}
+                      className={`flex-1 sm:flex-none px-2 sm:px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${viewMode === "racers" ? "bg-[var(--bg-card)] text-primary-600 dark:text-primary-300 shadow-sm" : "text-[var(--text-muted)] hover:text-[var(--text-heading)]"}`}
                       onClick={() => setViewMode("racers")}
                     >
                       <i className="fa-solid fa-users mr-1.5"></i> Racers
@@ -877,7 +883,7 @@
                         ? "Switch to light mode"
                         : "Switch to dark mode"
                     }
-                    className="w-10 h-10 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:bg-[var(--bg-subtle)] transition-colors border border-[var(--border-subtle)]"
+                    className="w-10 h-10 rounded-lg flex items-center justify-center text-[var(--text-muted)] hover:bg-[var(--bg-subtle)] transition-colors border border-[var(--border-subtle)] shrink-0"
                   >
                     <i
                       className={`fa-solid ${theme === "dark" ? "fa-sun" : "fa-moon"} text-lg`}
