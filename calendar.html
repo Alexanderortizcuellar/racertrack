@@ -2,20 +2,37 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Racer Calendar</title>
+    <title>Racer Calendar | Analytics Dashboard</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Include Google Fonts and FontAwesome -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    
     <style>
       :root {
-        --primary: #007bff;
-        --bg: #f8f9fa;
-        --text-dark: #343a40;
-        --text-light: #555;
-        --radius: 8px;
+        --bg-page: #0d1117;
+        --bg-card: #161b22;
+        --bg-subtle: #1c2333;
+        --bg-input: #1c2333;
+        --bg-chip: #21262d;
+        --border: #30363d;
+        --border-subtle: #21262d;
+        --text-heading: #f0f6fc;
+        --text-body: #c9d1d9;
+        --text-muted: #8b949e;
+        --text-faint: #6e7681;
+        --primary: #3b82f6;
+        --primary-hover: #2563eb;
+        --success: #10b981;
+        --radius: 12px;
       }
 
       body {
-        font-family: system-ui, sans-serif;
-        background: var(--bg);
+        font-family: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+        background-color: var(--bg-page);
+        color: var(--text-body);
         margin: 0;
         padding: 0;
         display: flex;
@@ -25,116 +42,269 @@
       }
 
       header {
-        text-align: center;
-        background: white;
+        background: var(--bg-card);
         width: 100%;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        padding: 10px 0;
+        border-bottom: 1px solid var(--border);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        padding: 16px 0;
         position: sticky;
         top: 0;
         z-index: 10;
+        display: flex;
+        justify-content: center;
       }
 
-      h1 {
-        margin: 10px 0;
-        color: var(--text-dark);
+      .header-container {
+        width: 90%;
+        max-width: 1000px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 16px;
+      }
+
+      .header-title-group {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .header-icon {
+        font-size: 20px;
+        color: var(--primary);
+        background: var(--bg-subtle);
+        padding: 10px;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+      }
+
+      h2 {
+        margin: 0;
+        color: var(--text-heading);
+        font-size: 20px;
+        font-weight: 700;
+        letter-spacing: -0.5px;
       }
 
       .controls {
         display: flex;
-        justify-content: center;
         align-items: center;
-        gap: 10px;
-        margin: 10px 0;
-        flex-wrap: wrap;
+        gap: 8px;
       }
 
-      select,
-      button {
-        padding: 6px 10px;
-        border-radius: var(--radius);
-        border: 1px solid #ccc;
-        background: white;
+      .nav-btn {
+        background: var(--bg-chip);
+        color: var(--text-heading);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         font-size: 14px;
         cursor: pointer;
+        transition: all 0.2s ease;
       }
 
-      button {
+      .nav-btn:hover {
+        background: var(--bg-subtle);
+        border-color: var(--primary);
+        color: var(--primary);
+      }
+
+      select {
+        background: var(--bg-chip);
+        color: var(--text-heading);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 6px 12px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        outline: none;
+        transition: all 0.2s ease;
+      }
+
+      select:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25);
+      }
+
+      .dashboard-link {
         background: var(--primary);
         color: white;
         border: none;
+        border-radius: 8px;
+        padding: 8px 16px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+        transition: all 0.2s ease;
       }
 
-      button:hover {
-        opacity: 0.9;
+      .dashboard-link:hover {
+        background: var(--primary-hover);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+      }
+
+      main {
+        width: 90%;
+        max-width: 1000px;
+        margin: 30px auto;
+        animation: fadeIn 0.4s ease-out;
       }
 
       #calendar {
         display: grid;
         grid-template-columns: repeat(7, 1fr);
-        gap: 6px;
-        width: 95%;
-        max-width: 900px;
-        margin: 20px auto;
-        transition: transform 0.3s ease;
+        gap: 10px;
+        background: var(--bg-card);
+        padding: 20px;
+        border-radius: 16px;
+        border: 1px solid var(--border);
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
       }
 
       .day-header {
-        font-weight: bold;
-        background: var(--text-dark);
-        color: white;
+        font-weight: 700;
+        color: var(--text-muted);
         text-align: center;
-        padding: 6px;
-        border-radius: var(--radius);
-        font-size: 0.9em;
+        padding: 10px 0;
+        font-size: 0.85em;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
       }
 
       .day {
-        background: white;
-        border: 1px solid #ddd;
+        background: var(--bg-subtle);
+        border: 1px solid var(--border);
         border-radius: var(--radius);
-        padding: 10px;
-        min-height: 80px;
+        padding: 12px;
+        min-height: 90px;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        text-align: center;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-        transition: transform 0.15s;
         position: relative;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: default;
       }
 
-      .day:hover {
-        transform: scale(1.05);
+      .day.empty-slot {
+        background: transparent;
+        border: none;
+        pointer-events: none;
+      }
+
+      .day.has-data {
+        cursor: pointer;
+        border-color: rgba(59, 130, 246, 0.2);
+        background: linear-gradient(135deg, var(--bg-subtle) 0%, rgba(28, 35, 51, 0.8) 100%);
+      }
+
+      .day.has-data:hover {
+        transform: translateY(-4px) scale(1.02);
+        border-color: var(--primary);
+        box-shadow: 0 6px 20px rgba(59, 130, 246, 0.15);
+        background: var(--bg-chip);
+      }
+
+      .day.is-today {
+        border: 2px solid var(--primary) !important;
+        box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
+      }
+
+      .day.is-today::after {
+        content: 'TODAY';
+        position: absolute;
+        top: -8px;
+        right: 8px;
+        background: var(--primary);
+        color: white;
+        font-size: 8px;
+        font-weight: 800;
+        padding: 2px 6px;
+        border-radius: 4px;
+        letter-spacing: 0.5px;
       }
 
       .date {
-        font-size: 0.9em;
-        color: var(--text-light);
+        font-size: 0.85em;
+        font-weight: 700;
+        color: var(--text-muted);
+        align-self: flex-start;
+      }
+
+      .day.has-data .date {
+        color: var(--text-heading);
+      }
+
+      .avg-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        margin-top: 10px;
       }
 
       .avg {
-        font-size: 1.3em;
-        font-weight: bold;
-        color: var(--primary);
+        font-size: 1.4em;
+        font-weight: 800;
+        color: var(--text-faint);
+      }
+
+      .day.has-data .avg {
+        font-size: 1.5em;
+      }
+
+      .label-score {
+        font-size: 9px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--text-faint);
+        font-weight: 600;
+        margin-top: 2px;
+      }
+
+      /* Activity Indicator dot */
+      .indicator {
+        position: absolute;
+        bottom: 8px;
+        right: 8px;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: transparent;
+      }
+
+      .day.has-data .indicator {
+        background: var(--primary);
+        box-shadow: 0 0 6px var(--primary);
       }
 
       /* Tooltip styling */
       .tooltip {
         position: fixed;
-        background: white;
-        border: 1px solid #ccc;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        border-radius: var(--radius);
-        padding: 10px 12px;
+        background: rgba(22, 27, 34, 0.95);
+        backdrop-filter: blur(8px);
+        border: 1px solid var(--border);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        border-radius: 12px;
+        padding: 14px 16px;
         font-size: 13px;
-        color: var(--text-dark);
+        color: var(--text-body);
         pointer-events: none;
         opacity: 0;
         transform: translateY(5px);
-        transition: opacity 0.25s ease, transform 0.25s ease;
+        transition: opacity 0.2s ease, transform 0.2s ease;
         z-index: 1000;
-        max-width: 240px;
+        min-width: 210px;
       }
 
       .tooltip.visible {
@@ -142,57 +312,172 @@
         transform: translateY(0);
       }
 
-      .tooltip strong {
+      .tooltip-title {
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--text-heading);
+        margin-bottom: 10px;
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 6px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .tooltip-title i {
         color: var(--primary);
       }
-      @media (max-width: 900px) {
-        #calendar {
-          transform: scale(0.95);
-        }
+
+      .tooltip-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 4px 0;
+        font-weight: 500;
       }
 
-      @media (max-width: 750px) {
-        #calendar {
-          transform: scale(0.85);
-        }
+      .tooltip-row span:first-child {
+        color: var(--text-muted);
       }
 
-      @media (max-width: 600px) {
-        #calendar {
-          transform: scale(0.75);
-        }
-        h1 {
-          font-size: 1.2em;
-        }
-        .day {
-          padding: 6px;
-        }
+      .tooltip-row span:last-child {
+        color: var(--text-heading);
+        font-weight: 600;
       }
 
-      @media (max-width: 480px) {
-        #calendar {
-          transform: scale(0.65);
-          transform-origin: top center;
+      /* Key Legend */
+      .legend-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 16px 20px;
+        margin-top: 20px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .legend-title {
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .legend {
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        gap: 20px;
+        flex-wrap: wrap;
+      }
+
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        color: var(--text-body);
+        font-weight: 500;
+      }
+
+      .legend-color {
+        width: 16px;
+        height: 16px;
+        border-radius: 4px;
+        border: 1px solid var(--border);
+      }
+
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      /* Responsive styling */
+      @media (max-width: 768px) {
+        .header-container {
+          flex-direction: column;
+          align-items: stretch;
+          text-align: center;
+        }
+        .header-title-group {
+          justify-content: center;
         }
         .controls {
-          flex-direction: column;
-          gap: 5px;
+          justify-content: center;
+        }
+        #calendar {
+          gap: 6px;
+          padding: 12px;
+        }
+        .day {
+          padding: 8px;
+          min-height: 75px;
+        }
+        .avg {
+          font-size: 1.1em !important;
+        }
+        .label-score {
+          display: none;
+        }
+        .legend-card {
+          padding: 12px;
+        }
+        .legend {
+          gap: 12px;
         }
       }
     </style>
   </head>
   <body>
     <header>
-      <h2>Racer Calendar</h2>
-      <div class="controls">
-        <button id="prevMonth">←</button>
-        <select id="monthSelect"></select>
-        <select id="yearSelect"></select>
-        <button id="nextMonth">→</button>
+      <div class="header-container">
+        <div class="header-title-group">
+          <div class="header-icon">
+            <i class="fa-regular fa-calendar-days"></i>
+          </div>
+          <div>
+            <h2>Racer Calendar</h2>
+          </div>
+        </div>
+        <div class="controls">
+          <button id="prevMonth" class="nav-btn"><i class="fa-solid fa-chevron-left"></i></button>
+          <select id="monthSelect"></select>
+          <select id="yearSelect"></select>
+          <button id="nextMonth" class="nav-btn"><i class="fa-solid fa-chevron-right"></i></button>
+          <a href="index.html" class="dashboard-link">
+            <i class="fa-solid fa-chart-pie"></i> Dashboard
+          </a>
+        </div>
       </div>
     </header>
 
-    <div id="calendar"></div>
+    <main>
+      <div id="calendar"></div>
+
+      <div class="legend-card">
+        <div class="legend-title">Average Score Performance Color Legend</div>
+        <div class="legend">
+          <div class="legend-item">
+            <div class="legend-color" style="background-color: hsl(0, 85%, 60%);"></div>
+            <span>Needs Practice (&lt; 10)</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background-color: hsl(35, 85%, 60%);"></div>
+            <span>Average (10 - 15)</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background-color: hsl(60, 85%, 60%);"></div>
+            <span>Good (15 - 20)</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background-color: hsl(120, 85%, 60%);"></div>
+            <span>Excellent (&gt;= 25)</span>
+          </div>
+        </div>
+      </div>
+    </main>
 
     <div id="tooltip" class="tooltip"></div>
 
@@ -222,6 +507,15 @@
         return averages;
       }
 
+      function getAvgColor(avg) {
+        // Map average score from 0 (red) to 25+ (green/emerald)
+        // Ratio: 0 maps to 0% of range, 25 maps to 100% of range
+        const maxScore = 25;
+        const ratio = Math.min(Math.max(avg / maxScore, 0), 1);
+        const hue = ratio * 120; // 0 (red) to 120 (green)
+        return `hsl(${hue}, 85%, 60%)`;
+      }
+
       function computeTooltipStats(racers) {
         const totalRacers = racers.length;
         let totalPuzzles = 0;
@@ -246,16 +540,14 @@
         const avgRating = (totalRating / (solved + unsolved || 1)).toFixed(0);
 
         return `
-      <div><strong>Racers:</strong> ${totalRacers}</div>
-      <div><strong>Total puzzles:</strong> ${totalPuzzles}</div>
-      <div><strong>Solved:</strong> ${solved}</div>
-      <div><strong>Unsolved:</strong> ${unsolved}</div>
-      <div><strong>Avg score:</strong> ${avgScore}</div>
-      <div><strong>Avg rating:</strong> ${avgRating}</div>
-      <div><strong>Fastest time:</strong> ${
-        fastest === Infinity ? "-" : fastest + "s"
-      }</div>
-    `;
+          <div class="tooltip-row"><span>Racers:</span><span>${totalRacers}</span></div>
+          <div class="tooltip-row"><span>Total Puzzles:</span><span>${totalPuzzles}</span></div>
+          <div class="tooltip-row"><span>Solved:</span><span>${solved}</span></div>
+          <div class="tooltip-row"><span>Unsolved:</span><span>${unsolved}</span></div>
+          <div class="tooltip-row"><span>Avg Score:</span><span>${avgScore}</span></div>
+          <div class="tooltip-row"><span>Avg Rating:</span><span>${avgRating}</span></div>
+          <div class="tooltip-row"><span>Fastest Time:</span><span>${fastest === Infinity ? "-" : fastest + "s"}</span></div>
+        `;
       }
 
       function populatePickers(year, month) {
@@ -315,26 +607,60 @@
         const daysInMonth = end.getDate();
 
         for (let i = 0; i < firstDay; i++) {
-          calendar.appendChild(document.createElement("div"));
+          const emptyDiv = document.createElement("div");
+          emptyDiv.className = "day empty-slot";
+          calendar.appendChild(emptyDiv);
         }
+
+        const todayDateObj = new Date();
+        const isTodayYearMonth = todayDateObj.getFullYear() === year && todayDateObj.getMonth() === month;
 
         for (let d = 1; d <= daysInMonth; d++) {
           const dateStr = `${year}-${String(month + 1).padStart(
             2,
             "0"
           )}-${String(d).padStart(2, "0")}`;
+          
           const div = document.createElement("div");
           div.className = "day";
-          div.innerHTML = `
-        <div class="date">${d}</div>
-        <div class="avg">${
-          averages[dateStr] ? averages[dateStr].toFixed(1) : "-"
-        }</div>
-      `;
+          if (isTodayYearMonth && todayDateObj.getDate() === d) {
+            div.classList.add("is-today");
+          }
 
-          if (grouped[dateStr]) {
+          const hasData = !!grouped[dateStr];
+
+          if (!hasData) {
+            div.innerHTML = `
+              <div class="date">${d}</div>
+              <div class="avg-container">
+                <div class="avg">-</div>
+              </div>
+            `;
+          } else {
+            div.classList.add("has-data");
+            const avgVal = averages[dateStr];
+            const avgColor = getAvgColor(avgVal);
+            
+            div.innerHTML = `
+              <div class="date">${d}</div>
+              <div class="avg-container">
+                <div class="avg" style="color: ${avgColor}; text-shadow: 0 0 12px ${avgColor}33;">${avgVal.toFixed(1)}</div>
+                <div class="label-score">avg</div>
+              </div>
+              <div class="indicator" style="background-color: ${avgColor}; box-shadow: 0 0 8px ${avgColor};"></div>
+            `;
+
+            div.addEventListener("click", () => {
+              window.location.href = `index.html?start=${dateStr}&end=${dateStr}`;
+            });
+
             div.addEventListener("mousemove", (e) => {
-              tooltip.innerHTML = computeTooltipStats(grouped[dateStr]);
+              tooltip.innerHTML = `
+                <div class="tooltip-title">
+                  <i class="fa-solid fa-calendar-day"></i> ${new Date(year, month, d).toLocaleDateString(undefined, { dateStyle: 'medium' })}
+                </div>
+                ${computeTooltipStats(grouped[dateStr])}
+              `;
               tooltip.classList.add("visible");
 
               const mouseX = e.clientX + 15 + window.scrollX;

@@ -414,7 +414,13 @@
         }, []);
 
         // Filters State
-        const [dateRange, setDateRange] = useState({ start: "", end: "" });
+        const [dateRange, setDateRange] = useState(() => {
+          const params = new URLSearchParams(window.location.search);
+          return {
+            start: params.get("start") || "",
+            end: params.get("end") || "",
+          };
+        });
         const [searchId, setSearchId] = useState("");
 
         // Apply Theme — syncs <html> class + localStorage whenever theme changes
@@ -873,6 +879,12 @@
                     >
                       <i className="fa-solid fa-users mr-1.5"></i> Racers
                     </button>
+                    <a
+                      href="calendar.html"
+                      className="flex-1 sm:flex-none px-2 sm:px-4 py-1.5 rounded-md text-sm font-medium transition-colors text-[var(--text-muted)] hover:text-[var(--text-heading)] flex items-center justify-center"
+                    >
+                      <i className="fa-regular fa-calendar-days mr-1.5"></i> Calendar
+                    </a>
                   </div>
 
                   <button
