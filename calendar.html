@@ -663,8 +663,8 @@
               `;
               tooltip.classList.add("visible");
 
-              const mouseX = e.clientX + 15 + window.scrollX;
-              const mouseY = e.clientY + 10 + window.scrollY;
+              const mouseX = e.clientX + 15;
+              const mouseY = e.clientY + 10;
               const tooltipRect = tooltip.getBoundingClientRect();
 
               let left = mouseX;
@@ -672,14 +672,11 @@
 
               // Prevent overflow on right
               if (left + tooltipRect.width > window.innerWidth) {
-                left = e.clientX - tooltipRect.width - 15 + window.scrollX;
+                left = e.clientX - tooltipRect.width - 15;
               }
               // Prevent overflow on bottom
-              if (
-                top + tooltipRect.height >
-                window.innerHeight + window.scrollY
-              ) {
-                top = e.clientY - tooltipRect.height - 15 + window.scrollY;
+              if (top + tooltipRect.height > window.innerHeight) {
+                top = e.clientY - tooltipRect.height - 15;
               }
 
               tooltip.style.left = `${left}px`;

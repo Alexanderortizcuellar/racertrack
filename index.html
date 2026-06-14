@@ -242,7 +242,7 @@
                     <i className="fa-solid fa-user-astronaut mr-2 opacity-70"></i>{" "}
                     Racer #{racer.id}
                   </h4>
-                  <p className="text-sm text-[var(--text-muted)] mt-1">
+                  <p className="text-[0.7rem] text-[var(--text-muted)] mt-1">
                     <i className="fa-regular fa-calendar mr-1"></i> {racer.date}
                   </p>
                 </div>
@@ -371,6 +371,8 @@
         const [error, setError] = useState(null);
         const [viewMode, setViewMode] = useState("dashboard");
         const [visibleRacers, setVisibleRacers] = useState(20);
+        const [racersLayout, setRacersLayout] = useState("card");
+        const [selectedRacerForModal, setSelectedRacerForModal] = useState(null);
 
         // -----------------------------------------------------------------
         // Theme — single source of truth.
@@ -506,6 +508,13 @@
             totalSolved: 0,
             totalTime: 0,
             totalRating: 0,
+            highScore: 0,
+            hardestSolvedRating: 0,
+            fastestCleanSolve: Infinity,
+            whitePuzzles: 0,
+            whiteSolved: 0,
+            blackPuzzles: 0,
+            blackSolved: 0,
           };
 
           rawData.forEach((rawRacer) => {
@@ -520,6 +529,12 @@
               timelineMap[date] = { date, score: 0, count: 0 };
             timelineMap[date].score += rawRacer.score || 0;
             timelineMap[date].count++;
+
+            // Track high score (PB)
+            const runScore = rawRacer.score !== undefined ? rawRacer.score : (rawRacer.puzzles ? rawRacer.puzzles.filter(p => p.solved).length : 0);
+            if (runScore > stats.highScore) {
+              stats.highScore = runScore;
+            }
 
             // Racer Aggregation
             const rawRacerId = rawRacer.id;
@@ -548,9 +563,36 @@
               rawRacer.puzzles.forEach((p) => {
                 racer.puzzles.push({ ...p });
                 allPuzzles.push(p);
+
+                // White vs Black active color from FEN
+                // In Lichess, the FEN has the color of the setup move.
+                // If the FEN active color is 'w', White plays the setup move (opponent), so the player is Black.
+                // If the FEN active color is 'b', Black plays the setup move (opponent), so the player is White.
+                let isWhite = true;
+                if (p.fen) {
+                  const parts = p.fen.split(" ");
+                  if (parts[1] === "w") {
+                    isWhite = false;
+                  }
+                }
+                if (isWhite) {
+                  stats.whitePuzzles++;
+                  if (p.solved) stats.whiteSolved++;
+                } else {
+                  stats.blackPuzzles++;
+                  if (p.solved) stats.blackSolved++;
+                }
+
                 if (p.solved) {
                   racer.solvedCount++;
                   stats.totalSolved++;
+
+                  if (p.rating > stats.hardestSolvedRating) {
+                    stats.hardestSolvedRating = p.rating;
+                  }
+                  if (p.time > 0 && p.time < stats.fastestCleanSolve) {
+                    stats.fastestCleanSolve = p.time;
+                  }
                 }
                 racer.totalTime += p.time;
                 racer.totalRating += p.rating;
@@ -634,6 +676,68 @@
           const scatterData = racers
             .filter((r) => r.total > 0)
             .map((r) => [r.avgTime, r.accuracy]);
+
+          // 4. Difficulty Analysis (Accuracy & Avg Time vs. Difficulty)
+          const diffBuckets = [
+            { min: 0, max: 1000, label: "<1000" },
+            { min: 1000, max: 1200, label: "1000-1200" },
+            { min: 1200, max: 1400, label: "1200-1400" },
+            { min: 1400, max: 1600, label: "1400-1600" },
+            { min: 1600, max: 1800, label: "1600-1800" },
+            { min: 1800, max: 2000, label: "1800-2000" },
+            { min: 2000, max: 2200, label: "2000-2200" },
+            { min: 2200, max: 2400, label: "2200-2400" },
+            { min: 2400, max: Infinity, label: "2400+" }
+          ];
+          const diffAgg = diffBuckets.map(b => ({ ...b, total: 0, solved: 0, timeSum: 0 }));
+          allPuzzles.forEach(p => {
+            const r = p.rating;
+            const b = diffAgg.find(bucket => r >= bucket.min && r < bucket.max);
+            if (b) {
+              b.total++;
+              if (p.solved) {
+                b.solved++;
+                b.timeSum += p.time;
+              }
+            }
+          });
+          const diffX = diffAgg.map(b => b.label);
+          const diffAcc = diffAgg.map(b => b.total ? parseFloat(((b.solved / b.total) * 100).toFixed(1)) : 0);
+          const diffTime = diffAgg.map(b => b.solved ? parseFloat((b.timeSum / b.solved).toFixed(1)) : 0);
+
+          // 5. Solve Speed Distribution
+          const speedBins = [
+            { label: "0-2s", min: 0, max: 3 },
+            { label: "3-5s", min: 3, max: 6 },
+            { label: "6-10s", min: 6, max: 11 },
+            { label: "11-20s", min: 11, max: 21 },
+            { label: "20s+", min: 21, max: Infinity }
+          ];
+          const speedCounts = speedBins.map(b => ({ ...b, count: 0 }));
+          allPuzzles.forEach(p => {
+            if (p.solved) {
+              const b = speedCounts.find(bin => p.time >= bin.min && p.time < bin.max);
+              if (b) b.count++;
+            }
+          });
+          const speedX = speedCounts.map(b => b.label);
+          const speedY = speedCounts.map(b => b.count);
+
+          // 6. Weekly Activity
+          const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+          const weeklyActivity = dayNames.map(name => ({ name, runs: 0, puzzles: 0, solved: 0 }));
+          racers.forEach(r => {
+            const d = new Date(r.date + "T00:00:00");
+            const dayIdx = d.getDay();
+            if (dayIdx >= 0 && dayIdx <= 6) {
+              weeklyActivity[dayIdx].runs++;
+              weeklyActivity[dayIdx].puzzles += r.puzzles ? r.puzzles.length : 0;
+              weeklyActivity[dayIdx].solved += r.solvedCount || 0;
+            }
+          });
+          const weeklyX = weeklyActivity.map(w => w.name);
+          const weeklyRuns = weeklyActivity.map(w => w.runs);
+          const weeklyAcc = weeklyActivity.map(w => w.puzzles ? parseFloat(((w.solved / w.puzzles) * 100).toFixed(1)) : 0);
 
           const { axisLabelColor } = THEMES[theme];
           const baseAxis = {
@@ -794,6 +898,133 @@
                 },
               ],
             },
+            difficultyAnalysis: {
+              title: {
+                text: "Difficulty Analysis: Accuracy & Solve Speed",
+                textStyle: { color: textColor, fontSize: 15, fontWeight: "600" },
+                left: "center",
+              },
+              tooltip: { trigger: "axis" },
+              legend: {
+                data: ["Accuracy", "Avg Solve Time"],
+                bottom: 0,
+                textStyle: { color: textColor }
+              },
+              grid: { left: "10%", right: "10%", bottom: "15%", containLabel: true },
+              xAxis: {
+                type: "category",
+                data: diffX,
+                ...baseAxis,
+                splitLine: { show: false }
+              },
+              yAxis: [
+                {
+                  type: "value",
+                  name: "Accuracy (%)",
+                  min: 0,
+                  max: 100,
+                  ...baseAxis
+                },
+                {
+                  type: "value",
+                  name: "Time (s)",
+                  ...baseAxis,
+                  splitLine: { show: false }
+                }
+              ],
+              series: [
+                {
+                  name: "Accuracy",
+                  type: "bar",
+                  data: diffAcc,
+                  itemStyle: { color: "#10b981", borderRadius: [4, 4, 0, 0] }
+                },
+                {
+                  name: "Avg Solve Time",
+                  type: "line",
+                  yAxisIndex: 1,
+                  smooth: true,
+                  symbolSize: 8,
+                  data: diffTime,
+                  itemStyle: { color: "#f43f5e" }
+                }
+              ]
+            },
+            solveSpeedDist: {
+              title: {
+                text: "Solve Speed Distribution (Correct Puzzles)",
+                textStyle: { color: textColor, fontSize: 15, fontWeight: "600" },
+                left: "center",
+              },
+              tooltip: { trigger: "axis", axisPointer: { type: "shadow" } },
+              grid: { left: "10%", right: "5%", bottom: "10%", containLabel: true },
+              xAxis: {
+                type: "category",
+                data: speedX,
+                ...baseAxis,
+                splitLine: { show: false }
+              },
+              yAxis: { type: "value", name: "Puzzles Solved", ...baseAxis },
+              series: [
+                {
+                  data: speedY,
+                  type: "bar",
+                  itemStyle: { color: "#3b82f6", borderRadius: [4, 4, 0, 0] }
+                }
+              ]
+            },
+            weeklyActivity: {
+              title: {
+                text: "Weekly Activity & Accuracy",
+                textStyle: { color: textColor, fontSize: 15, fontWeight: "600" },
+                left: "center",
+              },
+              tooltip: { trigger: "axis" },
+              legend: {
+                data: ["Runs Played", "Accuracy"],
+                bottom: 0,
+                textStyle: { color: textColor }
+              },
+              grid: { left: "10%", right: "10%", bottom: "15%", containLabel: true },
+              xAxis: {
+                type: "category",
+                data: weeklyX,
+                ...baseAxis,
+                splitLine: { show: false }
+              },
+              yAxis: [
+                {
+                  type: "value",
+                  name: "Runs",
+                  ...baseAxis
+                },
+                {
+                  type: "value",
+                  name: "Accuracy (%)",
+                  min: 0,
+                  max: 100,
+                  ...baseAxis,
+                  splitLine: { show: false }
+                }
+              ],
+              series: [
+                {
+                  name: "Runs Played",
+                  type: "bar",
+                  data: weeklyRuns,
+                  itemStyle: { color: "#f59e0b", borderRadius: [4, 4, 0, 0] }
+                },
+                {
+                  name: "Accuracy",
+                  type: "line",
+                  yAxisIndex: 1,
+                  smooth: true,
+                  symbolSize: 8,
+                  data: weeklyAcc,
+                  itemStyle: { color: "#10b981" }
+                }
+              ]
+            }
           };
         }, [processedData, theme]);
 
@@ -880,7 +1111,7 @@
                       <i className="fa-solid fa-users mr-1.5"></i> Racers
                     </button>
                     <a
-                      href="calendar.html"
+                      href={window.location.pathname.endsWith('/') || window.location.pathname.endsWith('.html') ? 'calendar.html' : window.location.pathname + '/calendar.html'}
                       className="flex-1 sm:flex-none px-2 sm:px-4 py-1.5 rounded-md text-sm font-medium transition-colors text-[var(--text-muted)] hover:text-[var(--text-heading)] flex items-center justify-center"
                     >
                       <i className="fa-regular fa-calendar-days mr-1.5"></i> Calendar
@@ -1051,6 +1282,43 @@
                     />
                   </div>
 
+                  {/* Milestones Header */}
+                  <div className="flex items-center pt-4">
+                    <h2 className="text-xl sm:text-2xl font-bold text-[var(--text-heading)]">
+                      <i className="fa-solid fa-award text-amber-500 mr-2"></i>{" "}
+                      Tactical Milestones
+                    </h2>
+                    <div className="h-px bg-[var(--border)] flex-grow ml-4"></div>
+                  </div>
+
+                  {/* Milestones Grid */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
+                    <KPICard
+                      title="Personal Best Score"
+                      value={stats.highScore}
+                      icon="fa-trophy"
+                      colorClass="text-yellow-500"
+                    />
+                    <KPICard
+                      title="Hardest Solved Puzzle"
+                      value={stats.hardestSolvedRating || "-"}
+                      icon="fa-brain"
+                      colorClass="text-indigo-500"
+                    />
+                    <KPICard
+                      title="Fastest Solve"
+                      value={stats.fastestCleanSolve === Infinity ? "-" : `${stats.fastestCleanSolve}s`}
+                      icon="fa-bolt"
+                      colorClass="text-cyan-500"
+                    />
+                    <KPICard
+                      title="White vs. Black Accuracy"
+                      value={`${stats.whitePuzzles ? ((stats.whiteSolved / stats.whitePuzzles) * 100).toFixed(0) : 0}% / ${stats.blackPuzzles ? ((stats.blackSolved / stats.blackPuzzles) * 100).toFixed(0) : 0}%`}
+                      icon="fa-chess-board"
+                      colorClass="text-slate-500"
+                    />
+                  </div>
+
                   {/* Charts Section */}
                   <div className="flex items-center pt-4">
                     <h2 className="text-xl sm:text-2xl font-bold text-[var(--text-heading)]">
@@ -1086,6 +1354,27 @@
                       <div className="bg-[var(--bg-card)] p-4 sm:p-6 rounded-2xl border border-[var(--border)] shadow-sm transition-colors">
                         <ReactEChart
                           option={chartOptions.scatter}
+                          style={{ height: "320px" }}
+                          theme={theme}
+                        />
+                      </div>
+                      <div className="bg-[var(--bg-card)] p-4 sm:p-6 rounded-2xl border border-[var(--border)] shadow-sm transition-colors">
+                        <ReactEChart
+                          option={chartOptions.difficultyAnalysis}
+                          style={{ height: "320px" }}
+                          theme={theme}
+                        />
+                      </div>
+                      <div className="bg-[var(--bg-card)] p-4 sm:p-6 rounded-2xl border border-[var(--border)] shadow-sm transition-colors">
+                        <ReactEChart
+                          option={chartOptions.solveSpeedDist}
+                          style={{ height: "320px" }}
+                          theme={theme}
+                        />
+                      </div>
+                      <div className="bg-[var(--bg-card)] p-4 sm:p-6 rounded-2xl border border-[var(--border)] shadow-sm transition-colors lg:col-span-2">
+                        <ReactEChart
+                          option={chartOptions.weeklyActivity}
                           style={{ height: "320px" }}
                           theme={theme}
                         />
@@ -1186,12 +1475,29 @@
               ) : (
                 <div className="fade-in space-y-6">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div className="flex items-center">
-                      <h2 className="text-xl sm:text-2xl font-bold text-[var(--text-heading)]">
+                    <div className="flex items-center gap-3">
+                      <h2 className="text-xl sm:text-2xl font-bold text-[var(--text-heading)] flex items-center">
                         <i className="fa-solid fa-users text-primary-500 mr-2"></i>{" "}
                         Racer Profiles
                       </h2>
+
+                      {/* Layout Switcher */}
+                      <div className="flex bg-[var(--bg-chip)] rounded-lg p-0.5 border border-[var(--border)] text-xs font-semibold">
+                        <button
+                          onClick={() => setRacersLayout("card")}
+                          className={`px-3 py-1.5 rounded-md transition-colors flex items-center gap-1.5 ${racersLayout === "card" ? "bg-[var(--bg-card)] text-primary-600 dark:text-primary-300 shadow-sm" : "text-[var(--text-muted)] hover:text-[var(--text-heading)]"}`}
+                        >
+                          <i className="fa-solid fa-grip"></i> Cards
+                        </button>
+                        <button
+                          onClick={() => setRacersLayout("table")}
+                          className={`px-3 py-1.5 rounded-md transition-colors flex items-center gap-1.5 ${racersLayout === "table" ? "bg-[var(--bg-card)] text-primary-600 dark:text-primary-300 shadow-sm" : "text-[var(--text-muted)] hover:text-[var(--text-heading)]"}`}
+                        >
+                          <i className="fa-solid fa-list"></i> Table
+                        </button>
+                      </div>
                     </div>
+
                     <p className="text-sm text-[var(--text-muted)] font-medium bg-[var(--bg-card)] px-4 py-2 rounded-lg border border-[var(--border)] shadow-sm inline-block">
                       Showing {visibleRacersList.length} of {racers.length}
                     </p>
@@ -1199,11 +1505,72 @@
                   <div className="h-px bg-[var(--border)] w-full mb-6"></div>
 
                   {visibleRacersList.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                      {visibleRacersList.map((racer) => (
-                        <RacerCard key={racer.id} racer={racer} />
-                      ))}
-                    </div>
+                    racersLayout === "card" ? (
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        {visibleRacersList.map((racer) => (
+                          <RacerCard key={racer.id} racer={racer} />
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="bg-[var(--bg-card)] rounded-2xl border border-[var(--border)] overflow-hidden shadow-sm overflow-x-auto transition-colors">
+                        <table className="w-full text-left text-sm whitespace-nowrap">
+                          <thead className="bg-[var(--bg-subtle)] text-[var(--text-muted)] border-b border-[var(--border)]">
+                            <tr>
+                              <th className="px-6 py-4 font-semibold text-xs uppercase tracking-wider">Racer ID</th>
+                              <th className="px-6 py-4 font-semibold text-xs uppercase tracking-wider">Date</th>
+                              <th className="px-6 py-4 font-semibold text-xs uppercase tracking-wider text-right">Score</th>
+                              <th className="px-6 py-4 font-semibold text-xs uppercase tracking-wider text-right">Accuracy</th>
+                              <th className="px-6 py-4 font-semibold text-xs uppercase tracking-wider text-right">Avg Time</th>
+                              <th className="px-6 py-4 font-semibold text-xs uppercase tracking-wider text-right">Avg Rating</th>
+                              <th className="px-6 py-4 font-semibold text-xs uppercase tracking-wider text-right">Puzzles</th>
+                              <th className="px-6 py-4 font-semibold text-xs uppercase tracking-wider text-center">Action</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-[var(--border-subtle)]">
+                            {visibleRacersList.map((racer) => (
+                              <tr
+                                key={racer.id}
+                                onClick={() => setSelectedRacerForModal(racer)}
+                                className="hover:bg-[var(--bg-subtle)]/60 cursor-pointer transition-colors"
+                              >
+                                <td className="px-6 py-4 font-bold text-primary-600 dark:text-primary-400">
+                                  #{racer.id}
+                                </td>
+                                <td className="px-6 py-4 text-[var(--text-muted)] font-medium">
+                                  {racer.date}
+                                </td>
+                                <td className="px-6 py-4 text-right font-bold text-[var(--text-heading)]">
+                                  {racer.score} pts
+                                </td>
+                                <td className="px-6 py-4 text-right text-emerald-500 dark:text-emerald-400 font-semibold">
+                                  {racer.accuracy.toFixed(1)}%
+                                </td>
+                                <td className="px-6 py-4 text-right text-blue-500 dark:text-blue-400 font-semibold">
+                                  {racer.avgTime.toFixed(1)}s
+                                </td>
+                                <td className="px-6 py-4 text-right text-rose-500 dark:text-rose-400 font-semibold">
+                                  {Math.round(racer.avgRating)}
+                                </td>
+                                <td className="px-6 py-4 text-right text-purple-500 dark:text-purple-400 font-semibold">
+                                  {racer.total}
+                                </td>
+                                <td className="px-6 py-4 text-center">
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setSelectedRacerForModal(racer);
+                                    }}
+                                    className="text-xs bg-primary-50 dark:bg-primary-950/40 text-primary-600 dark:text-primary-400 hover:bg-primary-100 dark:hover:bg-primary-950/60 px-3 py-1.5 rounded-lg border border-primary-200/40 font-bold transition-colors"
+                                  >
+                                    View Details
+                                  </button>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )
                   ) : (
                     <div className="text-center py-20 bg-[var(--bg-card)] rounded-2xl border border-[var(--border)] shadow-sm">
                       <i className="fa-solid fa-folder-open text-6xl text-[var(--border)] mb-4"></i>
@@ -1230,6 +1597,122 @@
                 </div>
               )}
             </main>
+
+            {/* Modal Dialog for Racer Details */}
+            {selectedRacerForModal && (
+              <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                {/* Backdrop */}
+                <div
+                  className="fixed inset-0 bg-black/60 backdrop-blur-sm"
+                  onClick={() => setSelectedRacerForModal(null)}
+                ></div>
+
+                {/* Modal Container */}
+                <div className="bg-[var(--bg-card)] border border-[var(--border)] rounded-2xl max-w-2xl w-full max-h-[85vh] flex flex-col shadow-2xl z-10 overflow-hidden fade-in text-left">
+                  {/* Modal Header */}
+                  <div className="p-6 border-b border-[var(--border-subtle)] flex items-center justify-between">
+                    <div>
+                      <h3 className="text-xl font-bold text-primary-600 dark:text-primary-400 flex items-center">
+                        <i className="fa-solid fa-user-astronaut mr-2 opacity-70"></i>
+                        Racer Run #{selectedRacerForModal.id}
+                      </h3>
+                      <p className="text-xs text-[var(--text-muted)] mt-1">
+                        <i className="fa-regular fa-calendar mr-1"></i> Played on {selectedRacerForModal.date}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => setSelectedRacerForModal(null)}
+                      className="w-10 h-10 rounded-xl flex items-center justify-center text-[var(--text-muted)] hover:bg-[var(--bg-subtle)] hover:text-[var(--text-heading)] transition-colors border border-[var(--border-subtle)]"
+                    >
+                      <i className="fa-solid fa-xmark text-lg"></i>
+                    </button>
+                  </div>
+
+                  {/* Modal Content */}
+                  <div className="p-6 overflow-y-auto space-y-6 flex-1 custom-scrollbar">
+                    {/* Quick Stats Grid */}
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                      <div className="bg-[var(--bg-subtle)] p-4 rounded-xl border border-[var(--border-subtle)] text-center">
+                        <span className="text-[11px] text-[var(--text-faint)] uppercase tracking-wider font-semibold block mb-1">Score</span>
+                        <span className="text-xl font-bold text-[var(--text-heading)]">{selectedRacerForModal.score} pts</span>
+                      </div>
+                      <div className="bg-[var(--bg-subtle)] p-4 rounded-xl border border-[var(--border-subtle)] text-center">
+                        <span className="text-[11px] text-[var(--text-faint)] uppercase tracking-wider font-semibold block mb-1">Accuracy</span>
+                        <span className="text-xl font-bold text-emerald-500">{selectedRacerForModal.accuracy.toFixed(1)}%</span>
+                      </div>
+                      <div className="bg-[var(--bg-subtle)] p-4 rounded-xl border border-[var(--border-subtle)] text-center">
+                        <span className="text-[11px] text-[var(--text-faint)] uppercase tracking-wider font-semibold block mb-1">Avg Time</span>
+                        <span className="text-xl font-bold text-blue-500">{selectedRacerForModal.avgTime.toFixed(1)}s</span>
+                      </div>
+                      <div className="bg-[var(--bg-subtle)] p-4 rounded-xl border border-[var(--border-subtle)] text-center">
+                        <span className="text-[11px] text-[var(--text-faint)] uppercase tracking-wider font-semibold block mb-1">Puzzles</span>
+                        <span className="text-xl font-bold text-purple-500">{selectedRacerForModal.total}</span>
+                      </div>
+                    </div>
+
+                    {/* Puzzle List Section */}
+                    <div>
+                      <h4 className="text-sm font-bold text-[var(--text-heading)] uppercase tracking-wider mb-3">Puzzles Attempted</h4>
+                      <div className="border border-[var(--border)] rounded-xl overflow-hidden overflow-x-auto bg-[var(--bg-subtle)]">
+                        <table className="w-full text-left text-sm whitespace-nowrap">
+                          <thead className="bg-[var(--bg-chip)] text-[var(--text-body)] border-b border-[var(--border)]">
+                            <tr>
+                              <th className="px-4 py-3 font-semibold text-xs uppercase tracking-wider">Lichess ID</th>
+                              <th className="px-4 py-3 font-semibold text-xs uppercase tracking-wider">Rating</th>
+                              <th className="px-4 py-3 font-semibold text-xs uppercase tracking-wider">Time</th>
+                              <th className="px-4 py-3 font-semibold text-xs uppercase tracking-wider">Status</th>
+                              <th className="px-4 py-3 font-semibold text-xs uppercase tracking-wider">Solution Line</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-[var(--border-subtle)] bg-[var(--bg-card)]">
+                            {selectedRacerForModal.puzzles.map((p, idx) => (
+                              <tr key={idx} className="hover:bg-[var(--bg-subtle)] transition-colors">
+                                <td className="px-4 py-3">
+                                  <a
+                                    href={`https://lichess.org/training/${p.lichess_id}`}
+                                    target="_blank"
+                                    className="text-primary-600 dark:text-primary-400 hover:underline font-semibold flex items-center"
+                                  >
+                                    {p.lichess_id}
+                                    <i className="fa-solid fa-arrow-up-right-from-square text-[10px] ml-1.5 opacity-55"></i>
+                                  </a>
+                                </td>
+                                <td className="px-4 py-3 text-[var(--text-muted)] font-medium">{p.rating}</td>
+                                <td className="px-4 py-3 text-[var(--text-muted)] font-medium">{p.time}s</td>
+                                <td className="px-4 py-3">
+                                  {p.solved ? (
+                                    <span className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-bold text-xs">
+                                      <i className="fa-solid fa-circle-check text-sm"></i> Solved
+                                    </span>
+                                  ) : (
+                                    <span className="inline-flex items-center gap-1 text-red-600 dark:text-red-400 font-bold text-xs">
+                                      <i className="fa-solid fa-circle-xmark text-sm"></i> Missed
+                                    </span>
+                                  )}
+                                </td>
+                                <td className="px-4 py-3 text-xs text-[var(--text-muted)] font-mono truncate max-w-[150px]" title={p.line}>
+                                  {p.line || "-"}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Modal Footer */}
+                  <div className="p-4 border-t border-[var(--border-subtle)] bg-[var(--bg-subtle)] flex justify-end">
+                    <button
+                      onClick={() => setSelectedRacerForModal(null)}
+                      className="bg-white hover:bg-slate-50 dark:bg-[var(--bg-card)] dark:hover:bg-[var(--bg-chip)] text-[var(--text-body)] px-5 py-2.5 rounded-xl font-bold transition-all border border-[var(--border)] shadow-sm hover:shadow"
+                    >
+                      Close Dialog
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         );
       };
