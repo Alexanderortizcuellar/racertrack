@@ -394,38 +394,215 @@
         to { opacity: 1; transform: translateY(0); }
       }
 
-      /* Responsive styling */
+      /* Selected day highlight styling */
+      .day.selected {
+        border-color: var(--primary) !important;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4), 0 4px 16px rgba(0, 0, 0, 0.3) !important;
+        transform: translateY(-2px) scale(1.02);
+        z-index: 2;
+      }
+
+      /* Day details card styling */
+      .details-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 20px;
+        margin-top: 20px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.24);
+        animation: fadeIn 0.3s ease-out;
+      }
+      .details-card.hidden {
+        display: none;
+      }
+      .details-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 12px;
+        margin-bottom: 16px;
+      }
+      .details-date {
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--text-heading);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .details-date i {
+        color: var(--primary);
+      }
+      .close-btn {
+        background: none;
+        border: none;
+        color: var(--text-muted);
+        font-size: 20px;
+        cursor: pointer;
+        transition: color 0.2s;
+        padding: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        width: 28px;
+        height: 28px;
+      }
+      .close-btn:hover {
+        color: var(--text-heading);
+        background: var(--bg-subtle);
+      }
+      .details-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+      }
+      .details-stat {
+        background: var(--bg-subtle);
+        border: 1px solid var(--border-subtle);
+        border-radius: 8px;
+        padding: 10px 14px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .details-stat-label {
+        font-size: 13px;
+        color: var(--text-muted);
+        font-weight: 500;
+      }
+      .details-stat-value {
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--text-heading);
+      }
+      .details-footer {
+        margin-top: 16px;
+      }
+      .details-footer .dashboard-link {
+        width: 100%;
+        box-sizing: border-box;
+        justify-content: center;
+      }
+
+      /* Day short label for headers */
+      .day-short {
+        display: none;
+      }
+
+      /* Responsive styling (Mobile & Tablet) */
       @media (max-width: 768px) {
         .header-container {
           flex-direction: column;
           align-items: stretch;
           text-align: center;
+          gap: 12px;
         }
         .header-title-group {
           justify-content: center;
         }
         .controls {
           justify-content: center;
+          flex-wrap: wrap;
+          width: 100%;
+          gap: 8px;
+        }
+        .controls select {
+          flex: 1;
+          min-width: 80px;
+          height: 38px;
+        }
+        .nav-btn {
+          height: 38px;
+          width: 38px;
+        }
+        .dashboard-link {
+          width: 100%;
+          justify-content: center;
+          box-sizing: border-box;
+          height: 38px;
+          margin-top: 4px;
+        }
+        main {
+          margin: 16px auto;
+          width: 95%;
         }
         #calendar {
-          gap: 6px;
-          padding: 12px;
+          gap: 8px;
+          padding: 14px;
         }
         .day {
-          padding: 8px;
-          min-height: 75px;
+          padding: 10px 8px;
+          min-height: 80px;
         }
         .avg {
-          font-size: 1.1em !important;
+          font-size: 1.2em !important;
         }
         .label-score {
           display: none;
         }
         .legend-card {
-          padding: 12px;
+          padding: 14px;
+          margin-top: 16px;
         }
         .legend {
           gap: 12px;
+        }
+      }
+
+      /* Mobile Portrait Small screens */
+      @media (max-width: 550px) {
+        .day-long {
+          display: none;
+        }
+        .day-short {
+          display: inline;
+        }
+        #calendar {
+          gap: 5px;
+          padding: 8px;
+          border-radius: 12px;
+        }
+        .day {
+          aspect-ratio: 1 / 1;
+          min-height: unset;
+          padding: 4px;
+          justify-content: center;
+          align-items: center;
+        }
+        .day.has-data {
+          background: var(--day-bg-subtle) !important;
+          border-color: var(--day-color) !important;
+          border-width: 1.5px;
+        }
+        .day.is-today::after {
+          font-size: 6px;
+          padding: 1px 3px;
+          top: -5px;
+          right: 1px;
+          border-radius: 2px;
+        }
+        .day .avg-container {
+          display: none;
+        }
+        .day .indicator {
+          display: none;
+        }
+        .day .date {
+          align-self: center;
+          font-size: 13px;
+          font-weight: 700;
+        }
+        .details-grid {
+          grid-template-columns: 1fr;
+          gap: 8px;
+        }
+        .details-stat {
+          padding: 8px 12px;
+        }
+        .details-stat[style*="grid-column"] {
+          grid-column: span 1 !important;
         }
       }
     </style>
@@ -455,6 +632,23 @@
 
     <main>
       <div id="calendar"></div>
+
+      <!-- Day Details Card (dynamically populated on mobile/tablet) -->
+      <div id="details-card" class="details-card hidden">
+        <div class="details-header">
+          <div class="details-date">
+            <i class="fa-solid fa-calendar-day"></i>
+            <span id="details-date-text"></span>
+          </div>
+          <button id="close-details" class="close-btn"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="details-body" id="details-body-content"></div>
+        <div class="details-footer">
+          <a id="details-dashboard-link" href="#" class="dashboard-link">
+            <i class="fa-solid fa-chart-pie"></i> View Detailed Dashboard
+          </a>
+        </div>
+      </div>
 
       <div class="legend-card">
         <div class="legend-title">Average Score Performance Color Legend</div>
@@ -588,16 +782,97 @@
         yearSelect.innerHTML = years.join("");
       }
 
+      function showDetailsCard(dateStr, dayRacers, year, month, d) {
+        const detailsCard = document.getElementById("details-card");
+        const detailsDateText = document.getElementById("details-date-text");
+        const detailsBodyContent = document.getElementById("details-body-content");
+        const detailsDashboardLink = document.getElementById("details-dashboard-link");
+
+        const dateObj = new Date(year, month, d);
+        const formattedDate = dateObj.toLocaleDateString(undefined, {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        });
+
+        detailsDateText.textContent = formattedDate;
+        detailsDashboardLink.href = `index.html?start=${dateStr}&end=${dateStr}`;
+
+        const totalRacers = dayRacers.length;
+        let totalPuzzles = 0;
+        let solved = 0;
+        let unsolved = 0;
+        let totalScore = 0;
+        let totalRating = 0;
+        let fastest = Infinity;
+
+        dayRacers.forEach((r) => {
+          totalPuzzles += r.puzzles_done || 0;
+          totalScore += r.score || 0;
+          r.puzzles?.forEach((p) => {
+            if (p.solved) solved++;
+            else unsolved++;
+            totalRating += p.rating || 0;
+            if (p.time && p.time < fastest) fastest = p.time;
+          });
+        });
+
+        const avgScore = (totalScore / totalRacers).toFixed(1);
+        const avgRating = (totalRating / (solved + unsolved || 1)).toFixed(0);
+        const avgColor = getAvgColor(parseFloat(avgScore));
+
+        detailsBodyContent.innerHTML = `
+          <div class="details-grid">
+            <div class="details-stat">
+              <span class="details-stat-label">Racers</span>
+              <span class="details-stat-value">${totalRacers}</span>
+            </div>
+            <div class="details-stat">
+              <span class="details-stat-label">Total Puzzles</span>
+              <span class="details-stat-value">${totalPuzzles}</span>
+            </div>
+            <div class="details-stat">
+              <span class="details-stat-label">Solved</span>
+              <span class="details-stat-value" style="color: var(--success);">${solved}</span>
+            </div>
+            <div class="details-stat">
+              <span class="details-stat-label">Unsolved</span>
+              <span class="details-stat-value" style="color: #ef4444;">${unsolved}</span>
+            </div>
+            <div class="details-stat">
+              <span class="details-stat-label">Avg Score</span>
+              <span class="details-stat-value" style="color: ${avgColor}; text-shadow: 0 0 8px ${avgColor}44;">${avgScore}</span>
+            </div>
+            <div class="details-stat">
+              <span class="details-stat-label">Avg Rating</span>
+              <span class="details-stat-value">${avgRating}</span>
+            </div>
+            <div class="details-stat" style="grid-column: span 2;">
+              <span class="details-stat-label">Fastest Time</span>
+              <span class="details-stat-value">${fastest === Infinity ? "-" : fastest + "s"}</span>
+            </div>
+          </div>
+        `;
+        
+        detailsCard.classList.remove("hidden");
+        // Scroll only if width is small to avoid unwanted jump on desktop
+        if (window.innerWidth <= 768) {
+          detailsCard.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        }
+      }
+
       function generateCalendar(grouped, averages, year, month) {
         const calendar = document.getElementById("calendar");
         const tooltip = document.getElementById("tooltip");
         calendar.innerHTML = "";
 
         const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-        daysOfWeek.forEach((day) => {
+        const daysShort = ["S", "M", "T", "W", "T", "F", "S"];
+        daysOfWeek.forEach((day, idx) => {
           const div = document.createElement("div");
           div.className = "day-header";
-          div.textContent = day;
+          div.innerHTML = `<span class="day-long">${day}</span><span class="day-short">${daysShort[idx]}</span>`;
           calendar.appendChild(div);
         });
 
@@ -641,6 +916,11 @@
             const avgVal = averages[dateStr];
             const avgColor = getAvgColor(avgVal);
             
+            // Set CSS variables on the day card for responsive styling
+            div.style.setProperty('--day-color', avgColor);
+            const hue = Math.min(Math.max(avgVal / 25, 0), 1) * 120;
+            div.style.setProperty('--day-bg-subtle', `hsla(${hue}, 85%, 60%, 0.15)`);
+
             div.innerHTML = `
               <div class="date">${d}</div>
               <div class="avg-container">
@@ -651,10 +931,26 @@
             `;
 
             div.addEventListener("click", () => {
-              window.location.href = `index.html?start=${dateStr}&end=${dateStr}`;
+              if (window.innerWidth <= 768) {
+                if (div.classList.contains("selected")) {
+                  // Second click/tap goes to the dashboard page
+                  window.location.href = `index.html?start=${dateStr}&end=${dateStr}`;
+                } else {
+                  // Select day and display the details panel
+                  document.querySelectorAll(".day.selected").forEach(el => el.classList.remove("selected"));
+                  div.classList.add("selected");
+                  showDetailsCard(dateStr, grouped[dateStr], year, month, d);
+                }
+              } else {
+                // Desktop goes straight to dashboard
+                window.location.href = `index.html?start=${dateStr}&end=${dateStr}`;
+              }
             });
 
             div.addEventListener("mousemove", (e) => {
+              // Hide tooltip on touch devices/mobile sizes
+              if (window.innerWidth <= 768) return;
+
               tooltip.innerHTML = `
                 <div class="tooltip-title">
                   <i class="fa-solid fa-calendar-day"></i> ${new Date(year, month, d).toLocaleDateString(undefined, { dateStyle: 'medium' })}
@@ -704,10 +1000,21 @@
         populatePickers(year, month);
         generateCalendar(grouped, averages, year, month);
 
+        // Register close button for details card
+        document.getElementById("close-details").addEventListener("click", () => {
+          document.getElementById("details-card").classList.add("hidden");
+          document.querySelectorAll(".day.selected").forEach(el => el.classList.remove("selected"));
+        });
+
+        const hideDetails = () => {
+          document.getElementById("details-card").classList.add("hidden");
+        };
+
         document
           .getElementById("monthSelect")
           .addEventListener("change", (e) => {
             month = parseInt(e.target.value);
+            hideDetails();
             generateCalendar(grouped, averages, year, month);
           });
 
@@ -715,6 +1022,7 @@
           .getElementById("yearSelect")
           .addEventListener("change", (e) => {
             year = parseInt(e.target.value);
+            hideDetails();
             generateCalendar(grouped, averages, year, month);
           });
 
@@ -724,6 +1032,7 @@
             year--;
           } else month--;
           populatePickers(year, month);
+          hideDetails();
           generateCalendar(grouped, averages, year, month);
         });
 
@@ -733,6 +1042,7 @@
             year++;
           } else month++;
           populatePickers(year, month);
+          hideDetails();
           generateCalendar(grouped, averages, year, month);
         });
       }

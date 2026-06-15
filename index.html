@@ -1152,15 +1152,23 @@
                       Quick Ranges
                     </label>
                     <div className="flex flex-wrap gap-2">
-                      {quickFilters.map((f) => (
-                        <button
-                          key={f.label}
-                          onClick={() => applyQuickFilter(f.getDates)}
-                          className="px-3 py-1.5 text-xs font-medium bg-[var(--bg-subtle)] hover:bg-[var(--bg-chip)]/50 dark:hover:bg-slate-700 text-[var(--text-body)] rounded-lg transition-colors border border-[var(--border)]"
-                        >
-                          {f.label}
-                        </button>
-                      ))}
+                      {quickFilters.map((f) => {
+                        const dates = f.getDates();
+                        const isActive = dateRange.start === dates.start && dateRange.end === dates.end;
+                        return (
+                          <button
+                            key={f.label}
+                            onClick={() => applyQuickFilter(f.getDates)}
+                            className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all border ${
+                              isActive
+                                ? "bg-primary-500 hover:bg-primary-600 text-white border-primary-500 shadow-sm"
+                                : "bg-[var(--bg-subtle)] hover:bg-[var(--bg-chip)]/50 dark:hover:bg-slate-700 text-[var(--text-body)] border-[var(--border)]"
+                            }`}
+                          >
+                            {f.label}
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
 
