@@ -503,6 +503,7 @@
           let racersMap = new Map();
           let timelineMap = {};
           let allPuzzles = [];
+          let filteredRuns = [];
           let stats = {
             totalPuzzles: 0,
             totalSolved: 0,
@@ -523,6 +524,20 @@
             // Filter by Date
             if (dateRange.start && date < dateRange.start) return;
             if (dateRange.end && date > dateRange.end) return;
+
+            // Collect runs that pass the date filter
+            let runPuzzles = rawRacer.puzzles || [];
+            filteredRuns.push({
+              id: rawRacer.id,
+              date: rawRacer.date,
+              score: rawRacer.score || 0,
+              avgTime: runPuzzles.length
+                ? runPuzzles.reduce((sum, p) => sum + (p.time || 0), 0) / runPuzzles.length
+                : 0,
+              avgRating: runPuzzles.length
+                ? runPuzzles.reduce((sum, p) => sum + (p.rating || 0), 0) / runPuzzles.length
+                : 0,
+            });
 
             // Timeline Aggregation
             if (!timelineMap[date]) {
@@ -647,16 +662,97 @@
               avgRating: s.puzzlesCount ? s.totalRating / s.puzzlesCount : 0,
             }));
 
-          return { racers: racersList, allPuzzles, timeline, stats };
+          // Apply Search Filter and Sort filteredRuns by id ascending
+          let sortedRuns = [...filteredRuns];
+          if (searchId) {
+            sortedRuns = sortedRuns.filter((r) =>
+              r.id.toString().includes(searchId)
+            );
+          }
+          sortedRuns.sort((a, b) => a.id - b.id);
+
+          return { racers: racersList, allPuzzles, timeline, filteredRuns: sortedRuns, stats };
         }, [rawData, dateRange, searchId]);
 
         // Chart Configurations (Memoized)
         const chartOptions = useMemo(() => {
           if (!processedData || !processedData.allPuzzles.length) return null;
 
-          const { racers, allPuzzles, timeline } = processedData;
+          const { racers, allPuzzles, timeline, filteredRuns } = processedData;
           const currentTheme = THEMES[theme] || THEMES.dark;
           const { textColor, gridLineColor } = currentTheme;
+
+          const isSingleDay = timeline.length <= 1;
+
+          const trendX = isSingleDay
+            ? filteredRuns.map((r, index) => `Run #${index + 1}`)
+            : timeline.map((t) => t.date);
+
+          const scoreFormatter = (params) => {
+            if (isSingleDay) {
+              const runIndex = params[0].dataIndex;
+              const runObj = filteredRuns[runIndex];
+              if (!runObj) return "";
+              return `<div class="font-sans text-sm p-1">
+                <strong class="block mb-1">Run #${runIndex + 1} (ID: ${runObj.id})</strong>
+                <span class="text-xs text-[var(--text-muted)] block mb-1">Date: ${runObj.date}</span>
+                <span class="font-semibold" style="color:#3b82f6">Score: ${runObj.score}</span>
+              </div>`;
+            } else {
+              return `<div class="font-sans text-sm p-1">
+                <strong class="block mb-1">${params[0].name}</strong>
+                <span class="font-semibold" style="color:#3b82f6">Avg Score: ${parseFloat(params[0].value).toFixed(2)}</span>
+              </div>`;
+            }
+          };
+
+          const timeFormatter = (params) => {
+            if (isSingleDay) {
+              const runIndex = params[0].dataIndex;
+              const runObj = filteredRuns[runIndex];
+              if (!runObj) return "";
+              return `<div class="font-sans text-sm p-1">
+                <strong class="block mb-1">Run #${runIndex + 1} (ID: ${runObj.id})</strong>
+                <span class="text-xs text-[var(--text-muted)] block mb-1">Date: ${runObj.date}</span>
+                <span class="font-semibold" style="color:#14b8a6">Avg Solve Time: ${parseFloat(params[0].value).toFixed(2)}s</span>
+              </div>`;
+            } else {
+              return `<div class="font-sans text-sm p-1">
+                <strong class="block mb-1">${params[0].name}</strong>
+                <span class="font-semibold" style="color:#14b8a6">Avg Solve Time: ${parseFloat(params[0].value).toFixed(2)}s</span>
+              </div>`;
+            }
+          };
+
+          const ratingFormatter = (params) => {
+            if (isSingleDay) {
+              const runIndex = params[0].dataIndex;
+              const runObj = filteredRuns[runIndex];
+              if (!runObj) return "";
+              return `<div class="font-sans text-sm p-1">
+                <strong class="block mb-1">Run #${runIndex + 1} (ID: ${runObj.id})</strong>
+                <span class="text-xs text-[var(--text-muted)] block mb-1">Date: ${runObj.date}</span>
+                <span class="font-semibold" style="color:#f59e0b">Avg Rating: ${Math.round(params[0].value)}</span>
+              </div>`;
+            } else {
+              return `<div class="font-sans text-sm p-1">
+                <strong class="block mb-1">${params[0].name}</strong>
+                <span class="font-semibold" style="color:#f59e0b">Avg Rating: ${Math.round(params[0].value)}</span>
+              </div>`;
+            }
+          };
+
+          const scoreData = isSingleDay
+            ? filteredRuns.map(r => r.score)
+            : timeline.map((t) => t.avgScore.toFixed(2));
+
+          const timeData = isSingleDay
+            ? filteredRuns.map(r => r.avgTime.toFixed(2))
+            : timeline.map((t) => t.avgTime.toFixed(2));
+
+          const ratingData = isSingleDay
+            ? filteredRuns.map(r => r.avgRating.toFixed(0))
+            : timeline.map((t) => t.avgRating.toFixed(0));
 
           // 1. Rating Distribution
           let ratingBins = {};
@@ -876,7 +972,7 @@
             },
             timeline: {
               title: {
-                text: "Average Score Trend",
+                text: isSingleDay ? "Run Score Trend" : "Average Score Trend",
                 textStyle: {
                   color: textColor,
                   fontSize: 15,
@@ -886,12 +982,7 @@
               },
               tooltip: {
                 trigger: "axis",
-                formatter: (params) => {
-                  return `<div class="font-sans text-sm p-1">
-                    <strong class="block mb-1">${params[0].name}</strong>
-                    <span class="font-semibold" style="color:#3b82f6">Avg Score: ${parseFloat(params[0].value).toFixed(2)}</span>
-                  </div>`;
-                }
+                formatter: scoreFormatter,
               },
               grid: {
                 left: "5%",
@@ -901,14 +992,14 @@
               },
               xAxis: {
                 type: "category",
-                data: timeline.map((t) => t.date),
+                data: trendX,
                 ...baseAxis,
                 splitLine: { show: false },
               },
               yAxis: { type: "value", ...baseAxis },
               series: [
                 {
-                  data: timeline.map((t) => t.avgScore.toFixed(2)),
+                  data: scoreData,
                   type: "line",
                   smooth: true,
                   itemStyle: { color: "#3b82f6" },
@@ -923,7 +1014,7 @@
             },
             timeTrend: {
               title: {
-                text: "Average Solve Time Trend",
+                text: isSingleDay ? "Run Avg Solve Time Trend" : "Average Solve Time Trend",
                 textStyle: {
                   color: textColor,
                   fontSize: 15,
@@ -933,12 +1024,7 @@
               },
               tooltip: {
                 trigger: "axis",
-                formatter: (params) => {
-                  return `<div class="font-sans text-sm p-1">
-                    <strong class="block mb-1">${params[0].name}</strong>
-                    <span class="font-semibold" style="color:#14b8a6">Avg Solve Time: ${parseFloat(params[0].value).toFixed(2)}s</span>
-                  </div>`;
-                }
+                formatter: timeFormatter,
               },
               grid: {
                 left: "5%",
@@ -948,7 +1034,7 @@
               },
               xAxis: {
                 type: "category",
-                data: timeline.map((t) => t.date),
+                data: trendX,
                 ...baseAxis,
                 splitLine: { show: false },
               },
@@ -960,7 +1046,7 @@
               },
               series: [
                 {
-                  data: timeline.map((t) => t.avgTime.toFixed(2)),
+                  data: timeData,
                   type: "line",
                   smooth: true,
                   itemStyle: { color: "#14b8a6" },
@@ -975,7 +1061,7 @@
             },
             ratingTrend: {
               title: {
-                text: "Average Puzzle Rating Trend",
+                text: isSingleDay ? "Run Avg Puzzle Rating Trend" : "Average Puzzle Rating Trend",
                 textStyle: {
                   color: textColor,
                   fontSize: 15,
@@ -985,12 +1071,7 @@
               },
               tooltip: {
                 trigger: "axis",
-                formatter: (params) => {
-                  return `<div class="font-sans text-sm p-1">
-                    <strong class="block mb-1">${params[0].name}</strong>
-                    <span class="font-semibold" style="color:#f59e0b">Avg Rating: ${Math.round(params[0].value)}</span>
-                  </div>`;
-                }
+                formatter: ratingFormatter,
               },
               grid: {
                 left: "5%",
@@ -1000,7 +1081,7 @@
               },
               xAxis: {
                 type: "category",
-                data: timeline.map((t) => t.date),
+                data: trendX,
                 ...baseAxis,
                 splitLine: { show: false },
               },
@@ -1012,7 +1093,7 @@
               },
               series: [
                 {
-                  data: timeline.map((t) => t.avgRating.toFixed(0)),
+                  data: ratingData,
                   type: "line",
                   smooth: true,
                   itemStyle: { color: "#f59e0b" },
