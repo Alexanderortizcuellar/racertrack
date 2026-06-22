@@ -525,8 +525,16 @@
             if (dateRange.end && date > dateRange.end) return;
 
             // Timeline Aggregation
-            if (!timelineMap[date])
-              timelineMap[date] = { date, score: 0, count: 0 };
+            if (!timelineMap[date]) {
+              timelineMap[date] = {
+                date,
+                score: 0,
+                count: 0,
+                totalTime: 0,
+                totalRating: 0,
+                puzzlesCount: 0,
+              };
+            }
             timelineMap[date].score += rawRacer.score || 0;
             timelineMap[date].count++;
 
@@ -563,6 +571,11 @@
               rawRacer.puzzles.forEach((p) => {
                 racer.puzzles.push({ ...p });
                 allPuzzles.push(p);
+
+                // Timeline Aggregation for puzzles
+                timelineMap[date].totalTime += p.time || 0;
+                timelineMap[date].totalRating += p.rating || 0;
+                timelineMap[date].puzzlesCount++;
 
                 // White vs Black active color from FEN
                 // In Lichess, the FEN has the color of the setup move.
@@ -630,6 +643,8 @@
             .map((s) => ({
               date: s.date,
               avgScore: s.count ? s.score / s.count : 0,
+              avgTime: s.puzzlesCount ? s.totalTime / s.puzzlesCount : 0,
+              avgRating: s.puzzlesCount ? s.totalRating / s.puzzlesCount : 0,
             }));
 
           return { racers: racersList, allPuzzles, timeline, stats };
@@ -869,7 +884,15 @@
                 },
                 left: "center",
               },
-              tooltip: { trigger: "axis" },
+              tooltip: {
+                trigger: "axis",
+                formatter: (params) => {
+                  return `<div class="font-sans text-sm p-1">
+                    <strong class="block mb-1">${params[0].name}</strong>
+                    <span class="font-semibold" style="color:#3b82f6">Avg Score: ${parseFloat(params[0].value).toFixed(2)}</span>
+                  </div>`;
+                }
+              },
               grid: {
                 left: "5%",
                 right: "5%",
@@ -893,6 +916,110 @@
                     color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
                       { offset: 0, color: "rgba(59, 130, 246, 0.5)" },
                       { offset: 1, color: "rgba(59, 130, 246, 0)" },
+                    ]),
+                  },
+                },
+              ],
+            },
+            timeTrend: {
+              title: {
+                text: "Average Solve Time Trend",
+                textStyle: {
+                  color: textColor,
+                  fontSize: 15,
+                  fontWeight: "600",
+                },
+                left: "center",
+              },
+              tooltip: {
+                trigger: "axis",
+                formatter: (params) => {
+                  return `<div class="font-sans text-sm p-1">
+                    <strong class="block mb-1">${params[0].name}</strong>
+                    <span class="font-semibold" style="color:#14b8a6">Avg Solve Time: ${parseFloat(params[0].value).toFixed(2)}s</span>
+                  </div>`;
+                }
+              },
+              grid: {
+                left: "5%",
+                right: "5%",
+                bottom: "10%",
+                containLabel: true,
+              },
+              xAxis: {
+                type: "category",
+                data: timeline.map((t) => t.date),
+                ...baseAxis,
+                splitLine: { show: false },
+              },
+              yAxis: {
+                type: "value",
+                name: "Time (s)",
+                scale: true,
+                ...baseAxis,
+              },
+              series: [
+                {
+                  data: timeline.map((t) => t.avgTime.toFixed(2)),
+                  type: "line",
+                  smooth: true,
+                  itemStyle: { color: "#14b8a6" },
+                  areaStyle: {
+                    color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                      { offset: 0, color: "rgba(20, 184, 166, 0.4)" },
+                      { offset: 1, color: "rgba(20, 184, 166, 0)" },
+                    ]),
+                  },
+                },
+              ],
+            },
+            ratingTrend: {
+              title: {
+                text: "Average Puzzle Rating Trend",
+                textStyle: {
+                  color: textColor,
+                  fontSize: 15,
+                  fontWeight: "600",
+                },
+                left: "center",
+              },
+              tooltip: {
+                trigger: "axis",
+                formatter: (params) => {
+                  return `<div class="font-sans text-sm p-1">
+                    <strong class="block mb-1">${params[0].name}</strong>
+                    <span class="font-semibold" style="color:#f59e0b">Avg Rating: ${Math.round(params[0].value)}</span>
+                  </div>`;
+                }
+              },
+              grid: {
+                left: "5%",
+                right: "5%",
+                bottom: "10%",
+                containLabel: true,
+              },
+              xAxis: {
+                type: "category",
+                data: timeline.map((t) => t.date),
+                ...baseAxis,
+                splitLine: { show: false },
+              },
+              yAxis: {
+                type: "value",
+                name: "Rating",
+                scale: true,
+                ...baseAxis,
+              },
+              series: [
+                {
+                  data: timeline.map((t) => t.avgRating.toFixed(0)),
+                  type: "line",
+                  smooth: true,
+                  itemStyle: { color: "#f59e0b" },
+                  areaStyle: {
+                    color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                      { offset: 0, color: "rgba(245, 158, 11, 0.4)" },
+                      { offset: 1, color: "rgba(245, 158, 11, 0)" },
                     ]),
                   },
                 },
@@ -1341,6 +1468,20 @@
                       <div className="bg-[var(--bg-card)] p-4 sm:p-6 rounded-2xl border border-[var(--border)] shadow-sm transition-colors">
                         <ReactEChart
                           option={chartOptions.timeline}
+                          style={{ height: "320px" }}
+                          theme={theme}
+                        />
+                      </div>
+                      <div className="bg-[var(--bg-card)] p-4 sm:p-6 rounded-2xl border border-[var(--border)] shadow-sm transition-colors">
+                        <ReactEChart
+                          option={chartOptions.timeTrend}
+                          style={{ height: "320px" }}
+                          theme={theme}
+                        />
+                      </div>
+                      <div className="bg-[var(--bg-card)] p-4 sm:p-6 rounded-2xl border border-[var(--border)] shadow-sm transition-colors">
+                        <ReactEChart
+                          option={chartOptions.ratingTrend}
                           style={{ height: "320px" }}
                           theme={theme}
                         />
